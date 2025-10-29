@@ -12,3 +12,4 @@ c:\Users\kth88\OneDrive\Desktop\Coding\Practice\obj\Debug\net9.0\refint\Practice
 c:\Users\kth88\OneDrive\Desktop\Coding\Practice\obj\Debug\net9.0\Practice.pdb
 c:\Users\kth88\OneDrive\Desktop\Coding\Practice\obj\Debug\net9.0\Practice.genruntimeconfig.cache
 c:\Users\kth88\OneDrive\Desktop\Coding\Practice\obj\Debug\net9.0\ref\Practice.dll
+c:\Users\kth88\OneDrive\Desktop\Coding\Practice\obj\Debug\net9.0\Practice.sourcelink.json
