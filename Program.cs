@@ -11,8 +11,9 @@ internal static class Program
     private static void Main(string[] args)
     {
         Solution solution = new Solution();
-        
-        int answer = solution.solution102802([1, 2, 7, 6, 4]);
+
+        // int answer = solution.solution102901(["ayaye", "uuu", "yeye", "yemawoo", "ayaayaa"]);
+        int answer = solution.solution102901(["mawoowoo"]);
         Console.WriteLine(answer);
     }
 }
@@ -1552,23 +1553,6 @@ public class Solution
         return answer;
     }
 
-    // public int solution102802(int[] nums)
-    // {
-    //     int answer = 0;
-    //     for (int i = 0; i < nums.Length - 2; i++)
-    //     {
-    //         for (int j = i + 1; j < nums.Length - 1; j++)
-    //         {
-    //             for (int k = j + 1; k < nums.Length; k++)
-    //             {
-    //                 int currNum = nums[i] + nums[j] + nums[k];
-    //                 if (currNum == 2 || currNum == 3) answer += 1;
-    //                 else if(currNum % 6 == 1 || currNum % 6 == 5) answer += 1;
-    //             }
-    //         }
-    //     }
-    //     return answer;
-    // }
     public int solution102802(int[] nums)
     {
         int answer = 0;
@@ -1583,7 +1567,7 @@ public class Solution
                 eratos[j] = false;
             }
         }
-        
+
         for (int i = 0; i < nums.Length - 2; i++)
         {
             for (int j = i + 1; j < nums.Length - 1; j++)
@@ -1593,6 +1577,65 @@ public class Solution
                     int currNum = nums[i] + nums[j] + nums[k];
                     if (eratos[currNum]) answer += 1;
                 }
+            }
+        }
+        return answer;
+    }
+    
+    public int solution102803(int n) {
+        int answer = 0;
+        bool[] eratos = Eratos(n);
+        for(int i = 0; i < eratos.Length; i++)
+        {
+            if (eratos[i]) answer += 1;
+        }
+        return answer;
+    }
+
+    public bool[] Eratos(int n)
+    {
+        bool[] eratos = Enumerable.Repeat(true, n + 1).ToArray();
+        eratos[0] = false;
+        eratos[1] = false;
+        for (int i = 2; i * i <= n; i++)
+        {
+            if (!eratos[i]) continue;
+            for (int j = i * i; j <= n; j += i)
+            {
+                eratos[j] = false;
+            }
+        }
+        return eratos;
+    }
+
+    public int solution102901(string[] babbling) {
+        int answer = 0;
+        var able = new[] { "aya", "ye", "woo", "ma" };
+        var pattern = "(" + string.Join("|", able.Select(Regex.Escape)) + ")";
+        string[][] splitted = babbling.Select(s => Regex.Split(s, pattern)
+                      .Where(x => x.Length > 0)
+                      .ToArray()).ToArray();
+        var ableWord = "aya|ye|woo|ma";
+        for(int i = 0; i < splitted.Length; i++)
+        {
+            Console.WriteLine(splitted[i].Length);
+            if (splitted[i].Length > 1)
+            {
+                for (int j = 1; j < splitted[i].Length; j++)
+                {
+                    var prevWord = splitted[i][j - 1];
+                    if (prevWord != splitted[i][j])
+                    {
+                        splitted[i][j] = Regex.Replace(splitted[i][j], ableWord, "");
+                        splitted[i][j - 1] = Regex.Replace(splitted[i][j - 1], ableWord, "");
+                    }
+                    if (splitted[i].All(x => x == "")) answer++;
+                }
+            }
+            else if(splitted[i].Length == 1)
+            {
+                splitted[i][0] = Regex.Replace(splitted[i][0], ableWord, "");   
+                if (splitted[i].All(x => x == "")) answer++;
             }
         }
         return answer;
