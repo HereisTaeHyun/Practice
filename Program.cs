@@ -12,7 +12,7 @@ internal static class Program
     {
         Solution solution = new Solution();
         
-        int answer = solution.solution102802([1,2,7,6,4]);
+        int answer = solution.solution102802([1, 2, 7, 6, 4]);
         Console.WriteLine(answer);
     }
 }
@@ -1552,16 +1552,46 @@ public class Solution
         return answer;
     }
 
+    // public int solution102802(int[] nums)
+    // {
+    //     int answer = 0;
+    //     for (int i = 0; i < nums.Length - 2; i++)
+    //     {
+    //         for (int j = i + 1; j < nums.Length - 1; j++)
+    //         {
+    //             for (int k = j + 1; k < nums.Length; k++)
+    //             {
+    //                 int currNum = nums[i] + nums[j] + nums[k];
+    //                 if (currNum == 2 || currNum == 3) answer += 1;
+    //                 else if(currNum % 6 == 1 || currNum % 6 == 5) answer += 1;
+    //             }
+    //         }
+    //     }
+    //     return answer;
+    // }
     public int solution102802(int[] nums)
     {
         int answer = 0;
-        for (int i = 0; i < nums.Length; i++)
+        bool[] eratos = Enumerable.Repeat(true, 3001).ToArray();
+        eratos[0] = false;
+        eratos[1] = false;
+        for (int i = 2; i * i <= 3000; i++)
         {
-            for (int j = i + 1; j < nums.Length; j++)
+            if (!eratos[i]) continue;
+            for (int j = i * i; j <= 3000; j += i)
+            {
+                eratos[j] = false;
+            }
+        }
+        
+        for (int i = 0; i < nums.Length - 2; i++)
+        {
+            for (int j = i + 1; j < nums.Length - 1; j++)
             {
                 for (int k = j + 1; k < nums.Length; k++)
                 {
                     int currNum = nums[i] + nums[j] + nums[k];
+                    if (eratos[currNum]) answer += 1;
                 }
             }
         }
