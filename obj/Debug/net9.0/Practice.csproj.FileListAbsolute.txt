@@ -1,0 +1,14 @@
+c:\Users\kth88\OneDrive\Desktop\Coding\Practice\bin\Debug\net9.0\Practice.exe
+c:\Users\kth88\OneDrive\Desktop\Coding\Practice\bin\Debug\net9.0\Practice.deps.json
+c:\Users\kth88\OneDrive\Desktop\Coding\Practice\bin\Debug\net9.0\Practice.runtimeconfig.json
+c:\Users\kth88\OneDrive\Desktop\Coding\Practice\bin\Debug\net9.0\Practice.dll
+c:\Users\kth88\OneDrive\Desktop\Coding\Practice\bin\Debug\net9.0\Practice.pdb
+c:\Users\kth88\OneDrive\Desktop\Coding\Practice\obj\Debug\net9.0\Practice.GeneratedMSBuildEditorConfig.editorconfig
+c:\Users\kth88\OneDrive\Desktop\Coding\Practice\obj\Debug\net9.0\Practice.AssemblyInfoInputs.cache
+c:\Users\kth88\OneDrive\Desktop\Coding\Practice\obj\Debug\net9.0\Practice.AssemblyInfo.cs
+c:\Users\kth88\OneDrive\Desktop\Coding\Practice\obj\Debug\net9.0\Practice.csproj.CoreCompileInputs.cache
+c:\Users\kth88\OneDrive\Desktop\Coding\Practice\obj\Debug\net9.0\Practice.dll
+c:\Users\kth88\OneDrive\Desktop\Coding\Practice\obj\Debug\net9.0\refint\Practice.dll
+c:\Users\kth88\OneDrive\Desktop\Coding\Practice\obj\Debug\net9.0\Practice.pdb
+c:\Users\kth88\OneDrive\Desktop\Coding\Practice\obj\Debug\net9.0\Practice.genruntimeconfig.cache
+c:\Users\kth88\OneDrive\Desktop\Coding\Practice\obj\Debug\net9.0\ref\Practice.dll
