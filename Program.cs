@@ -12,8 +12,8 @@ internal static class Program
     {
         Solution solution = new Solution();
 
-        // int answer = solution.solution102901(["ayaye", "uuu", "yeye", "yemawoo", "ayaayaa"]);
-        int answer = solution.solution102901(["mawoowoo"]);
+        int answer = solution.solution103005([2, 1, 1, 2, 3, 1, 2, 3, 1]);
+        // foreach (var elem in answer) Console.WriteLine(elem);
         Console.WriteLine(answer);
     }
 }
@@ -1608,34 +1608,219 @@ public class Solution
         return eratos;
     }
 
-    public int solution102901(string[] babbling) {
+    public int solution102901(string[] babbling)
+    {
         int answer = 0;
         var able = new[] { "aya", "ye", "woo", "ma" };
         var pattern = "(" + string.Join("|", able.Select(Regex.Escape)) + ")";
         string[][] splitted = babbling.Select(s => Regex.Split(s, pattern)
                       .Where(x => x.Length > 0)
                       .ToArray()).ToArray();
-        var ableWord = "aya|ye|woo|ma";
-        for(int i = 0; i < splitted.Length; i++)
+
+        var ableWord = new HashSet<string> { "aya", "ye", "woo", "ma" }; ;
+        for (int i = 0; i < splitted.Length; i++)
         {
-            Console.WriteLine(splitted[i].Length);
             if (splitted[i].Length > 1)
             {
+                bool ableSaying = true;
                 for (int j = 1; j < splitted[i].Length; j++)
                 {
                     var prevWord = splitted[i][j - 1];
-                    if (prevWord != splitted[i][j])
+                    var currWord = splitted[i][j];
+
+                    if (prevWord == currWord) ableSaying = false;
+                    if (!ableWord.Contains(currWord) || !ableWord.Contains(prevWord)) ableSaying = false;
+                }
+                if (ableSaying) answer++;
+            }
+            else if (splitted[i].Length == 1)
+            {
+                var currWord = splitted[i][0];
+                bool ableSaying = true;
+                if (!ableWord.Contains(currWord)) ableSaying = false;
+                if (ableSaying) answer++;
+            }
+        }
+        return answer;
+    }
+
+    public string solution102902(string s, string skip, int index)
+    {
+        string answer = "";
+        char[] store = s.ToCharArray();
+        char[] skipArray = skip.ToCharArray();
+        for (int i = 0; i < store.Length; i++)
+        {
+            for (int j = 0; j < index;)
+            {
+                if ('a' <= store[i] && store[i] <= 'z')
+                    store[i] = (char)('a' + (((store[i] - 'a') + 1) % 26 + 26) % 26);
+                if ('A' <= store[i] && store[i] <= 'Z')
+                    store[i] = (char)('A' + (((store[i] - 'A') + 1) % 26 + 26) % 26);
+                if (!skipArray.Contains(store[i])) j++;
+            }
+        }
+        answer = new string(store);
+        return answer;
+    }
+
+    public int[] solution103001(int[] lottos, int[] win_nums)
+    {
+        int[] answer = new int[2];
+        int min = 0;
+        int max = 0;
+        int count = win_nums.Intersect(lottos).Count();
+        int countZero = lottos.Count(x => x == 0);
+        min = Lotto(count);
+        max = Lotto(count + countZero);
+
+        answer[0] = max;
+        answer[1] = min;
+        return answer;
+    }
+
+    public int Lotto(int n)
+    {
+        int num = 0;
+        switch (n)
+        {
+            case 6:
+                num = 1;
+                break;
+            case 5:
+                num = 2;
+                break;
+            case 4:
+                num = 3;
+                break;
+            case 3:
+                num = 4;
+                break;
+            case 2:
+                num = 5;
+                break;
+            default:
+                num = 6;
+                break;
+        }
+        return num;
+    }
+
+    public int solution103002(string s)
+    {
+        int answer = 1;
+        char currChar = s[0];
+        int countSame = 1;
+        int countOther = 0;
+
+        for (int i = 1; i < s.Length; i++)
+        {
+            if (countSame == countOther)
+            {
+                currChar = s[i];
+                answer += 1;
+            }
+
+            if (currChar == s[i]) countSame += 1;
+            else if (currChar != s[i]) countOther += 1;
+        }
+        return answer;
+    }
+
+    public int[] solution103003(string[] keymap, string[] targets)
+    {
+        int[] answer = new int[targets.Length];
+        for (int i = 0; i < targets.Length; i++)
+        {
+            int click = 0;
+            for (int j = 0; j < targets[i].Length; j++)
+            {
+                int min = int.MaxValue;
+                char currChar = targets[i][j];
+                for (int k = 0; k < keymap.Length; k++)
+                {
+                    int pos = keymap[k].IndexOf(currChar);
+                    if (pos != -1 && pos + 1 < min)
                     {
-                        splitted[i][j] = Regex.Replace(splitted[i][j], ableWord, "");
-                        splitted[i][j - 1] = Regex.Replace(splitted[i][j - 1], ableWord, "");
+                        min = pos + 1;
                     }
-                    if (splitted[i].All(x => x == "")) answer++;
+                }
+                if (min != int.MaxValue) click += min;
+                else if (min == int.MaxValue)
+                {
+                    click = -1;
+                    break;
                 }
             }
-            else if(splitted[i].Length == 1)
+            answer[i] = click;
+        }
+        return answer;
+    }
+
+    public int solution103004(int n, int[] lost, int[] reserve)
+    {
+        int answer = 0;
+
+        Array.Sort(reserve);
+        int[] have = reserve.Except(lost).ToArray();
+        int removedCount = reserve.Intersect(lost).Count();
+
+        Array.Sort(lost);
+        int lostNum = lost.Length;
+        lost = lost.Except(reserve).ToArray();
+        List<int> lostList = lost.ToList();
+
+        int able = 0;
+        for (int i = 0; i < have.Length; i++)
+        {
+            if (lostList.Contains(have[i] - 1))
             {
-                splitted[i][0] = Regex.Replace(splitted[i][0], ableWord, "");   
-                if (splitted[i].All(x => x == "")) answer++;
+                able += 1;
+                lostList.Remove(have[i] - 1);
+            }
+            else if (lostList.Contains(have[i] + 1))
+            {
+                able += 1;
+                lostList.Remove(have[i] + 1);
+            }
+        }
+        answer = n - lostNum + able + removedCount;
+        return answer;
+    }
+
+    // public int solution103005(int[] ingredient) {
+    //     int answer = 0;
+    //     StringBuilder stringBuilder = new StringBuilder();
+    //     string hamberger = "1231";
+    //     for (int i = 0; i < ingredient.Length; i++) stringBuilder.Append(ingredient[i]);
+
+    //     while(stringBuilder.ToString().Contains(hamberger))
+    //     {
+    //         int idx = stringBuilder.ToString().IndexOf(hamberger);
+    //         stringBuilder.Remove(idx, hamberger.Length);
+    //         answer += 1;
+    //     }
+    //     return answer;
+    // }
+    public int solution103005(int[] ingredient) {
+        int answer = 0;
+        List<int> store = new List<int>();
+        
+        for(int i = 0; i < ingredient.Length; i++)
+        {
+            store.Add(ingredient[i]);
+            bool isHamberger = true;
+            if(store.Count >= 4)
+            {
+                if (store[store.Count - 1] != 1) isHamberger = false;
+                if (store[store.Count - 2] != 3) isHamberger = false;
+                if (store[store.Count - 3] != 2) isHamberger = false;
+                if (store[store.Count - 4] != 1) isHamberger = false;
+                if(isHamberger)
+                {
+                    store.RemoveRange(store.Count - 4, 4);
+                    answer += 1;
+                }
             }
         }
         return answer;
