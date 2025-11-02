@@ -12,7 +12,13 @@ internal static class Program
     {
         Solution solution = new Solution();
 
-        int answer = solution.solution103005([2, 1, 1, 2, 3, 1, 2, 3, 1]);
+        int answer = solution.solution110301(new[] { 730, 855, 700, 720 }, new int[,]
+    {
+        { 710, 700, 650, 735, 700, 931, 912 },
+        { 908, 901, 805, 815, 800, 831, 835 },
+        { 705, 701, 702, 705, 710, 710, 711 },
+        { 707, 731, 859, 913, 934, 931, 905 },
+    }, 1);
         // foreach (var elem in answer) Console.WriteLine(elem);
         Console.WriteLine(answer);
     }
@@ -1788,40 +1794,234 @@ public class Solution
         return answer;
     }
 
-    // public int solution103005(int[] ingredient) {
-    //     int answer = 0;
-    //     StringBuilder stringBuilder = new StringBuilder();
-    //     string hamberger = "1231";
-    //     for (int i = 0; i < ingredient.Length; i++) stringBuilder.Append(ingredient[i]);
-
-    //     while(stringBuilder.ToString().Contains(hamberger))
-    //     {
-    //         int idx = stringBuilder.ToString().IndexOf(hamberger);
-    //         stringBuilder.Remove(idx, hamberger.Length);
-    //         answer += 1;
-    //     }
-    //     return answer;
-    // }
-    public int solution103005(int[] ingredient) {
+    public int solution103005(int[] ingredient)
+    {
         int answer = 0;
         List<int> store = new List<int>();
-        
-        for(int i = 0; i < ingredient.Length; i++)
+
+        for (int i = 0; i < ingredient.Length; i++)
         {
             store.Add(ingredient[i]);
             bool isHamberger = true;
-            if(store.Count >= 4)
+            if (store.Count >= 4)
             {
                 if (store[store.Count - 1] != 1) isHamberger = false;
                 if (store[store.Count - 2] != 3) isHamberger = false;
                 if (store[store.Count - 3] != 2) isHamberger = false;
                 if (store[store.Count - 4] != 1) isHamberger = false;
-                if(isHamberger)
+                if (isHamberger)
                 {
                     store.RemoveRange(store.Count - 4, 4);
                     answer += 1;
                 }
             }
+        }
+        return answer;
+    }
+
+    public string solution103101(string X, string Y)
+    {
+        string answer = "";
+        int[] storeX = X.Select(x => x - '0').ToArray();
+        int[] storeY = Y.Select(x => x - '0').ToArray();
+        Array.Sort(storeX);
+        Array.Sort(storeY);
+        List<int> intersect = new List<int>();
+        int i = 0;
+        int j = 0;
+        while (i < storeX.Length && j < storeY.Length)
+        {
+            if (storeX[i] == storeY[j])
+            {
+                intersect.Add(storeX[i]);
+                i++;
+                j++;
+            }
+            else if (storeX[i] < storeY[j]) i++;
+            else j++;
+        }
+
+        int[] store = intersect.ToArray();
+        Array.Sort(store);
+        Array.Reverse(store);
+
+        if (store.Length == 0) answer = "-1";
+        else if (store.All(x => x == 0)) answer = "0";
+        else answer = string.Join("", store);
+        return answer;
+    }
+
+    public string solution103102(string[] survey, int[] choices)
+    {
+        string answer = "";
+        Dictionary<char, int> typeScore = new Dictionary<char, int>
+        {
+            { 'R', 0 },
+            { 'T', 0 },
+            { 'C', 0 },
+            { 'F', 0 },
+            { 'J', 0 },
+            { 'M', 0 },
+            { 'A', 0 },
+            { 'N', 0 },
+        };
+
+        for (int i = 0; i < survey.Length; i++) Survey(survey[i], choices[i], typeScore);
+
+        answer += typeScore['R'] >= typeScore['T'] ? 'R' : 'T';
+        answer += typeScore['C'] >= typeScore['F'] ? 'C' : 'F';
+        answer += typeScore['J'] >= typeScore['M'] ? 'J' : 'M';
+        answer += typeScore['A'] >= typeScore['N'] ? 'A' : 'N';
+
+        return answer;
+    }
+
+    private void Survey(string survey, int choice, Dictionary<char, int> typeScore)
+    {
+        var type1 = survey[0];
+        var type2 = survey[1];
+        switch (choice)
+        {
+            case 1:
+                typeScore[type1] += 3;
+                break;
+            case 2:
+                typeScore[type1] += 2;
+                break;
+            case 3:
+                typeScore[type1] += 1;
+                break;
+            case 5:
+                typeScore[type2] += 1;
+                break;
+            case 6:
+                typeScore[type2] += 2;
+                break;
+            case 7:
+                typeScore[type2] += 3;
+                break;
+        }
+    }
+
+    public int[] solution103103(string[] wallpaper)
+    {
+        int[] answer = new int[4];
+        int closeWidth = int.MaxValue;
+        int closeHeight = int.MaxValue;
+        int farWidth = int.MinValue;
+        int farHeight = int.MinValue;
+        for (int i = 0; i < wallpaper.Length; i++)
+        {
+            if (wallpaper[i].Contains('#'))
+            {
+                if (closeHeight > i) closeHeight = i;
+                if (farHeight < i) farHeight = i;
+
+                var firstPos = wallpaper[i].IndexOf('#');
+                var lastPos = wallpaper[i].LastIndexOf('#');
+
+                if (closeWidth > firstPos) closeWidth = firstPos;
+                if (farWidth < lastPos) farWidth = lastPos;
+            }
+        }
+        answer[0] = closeHeight;
+        answer[1] = closeWidth;
+        answer[2] = farHeight + 1;
+        answer[3] = farWidth + 1;
+        return answer;
+    }
+
+    public int[] solution103104(string today, string[] terms, string[] privacies)
+    {
+        List<int> answer = new List<int>();
+
+        string[] todayStringList = today.Split('.');
+        int[] todayData = new int[3];
+        for (int i = 0; i < todayStringList.Length; i++) todayData[i] = int.Parse(todayStringList[i]);
+
+        Dictionary<char, int> termsData = new Dictionary<char, int>();
+        for (int i = 0; i < terms.Length; i++)
+        {
+            string[] currTerm = terms[i].Split(" ");
+            termsData.Add(currTerm[0][0], int.Parse(currTerm[1]));
+        }
+
+        var privaciesData = new List<(char term, int year, int month, int date)>();
+        for (int i = 0; i < privacies.Length; i++)
+        {
+            string[] currPrivacy = privacies[i].Split('.', ' ');
+            var term = currPrivacy[3][0];
+            var year = int.Parse(currPrivacy[0]);
+            var month = int.Parse(currPrivacy[1]);
+            var date = int.Parse(currPrivacy[2]);
+            privaciesData.Add((term, year, month, date));
+        }
+
+        for (int i = 0; i < privaciesData.Count; i++)
+        {
+            var adding = termsData[privaciesData[i].term];
+            var year = privaciesData[i].year;
+            var month = privaciesData[i].month;
+            var date = privaciesData[i].date;
+
+            month += adding;
+            if (month > 12)
+            {
+                while (month > 12)
+                {
+                    year += 1;
+                    month -= 12;
+                }
+            }
+            date -= 1;
+            if (date == 0)
+            {
+                date = 28;
+                month -= 1;
+            }
+
+            privaciesData[i] = (privaciesData[i].term, year, month, date);
+        }
+
+        var todayYear = todayData[0];
+        var todayMonth = todayData[1];
+        var todayDate = todayData[2];
+        for (int i = 0; i < privaciesData.Count; i++)
+        {
+            if (todayYear > privaciesData[i].year) answer.Add(i + 1);
+            else if (todayYear == privaciesData[i].year)
+            {
+                if (todayMonth > privaciesData[i].month) answer.Add(i + 1);
+                else if (todayMonth == privaciesData[i].month)
+                {
+                    if (todayDate > privaciesData[i].date) answer.Add(i + 1);
+                }
+            }
+        }
+        return answer.ToArray();
+    }
+    
+    public int solution110301(int[] schedules, int[,] timelogs, int startday) {
+        int answer = 0;
+        for (int i = 0; i < schedules.Length; i++)
+        {
+            schedules[i] += 10;
+            int minute = schedules[i] % 100;
+            if (minute >= 60) schedules[i] += 40;
+        }
+
+        for (int i = 0; i < timelogs.GetLength(0); i++)
+        {
+            int count = 0;
+            int currDay = startday;
+            int time = schedules[i];
+            for (int j = 0; j < timelogs.GetLength(1); j++)
+            {
+                if (timelogs[i, j] <= time && currDay != 6 && currDay != 7) count += 1;
+                currDay += 1;
+                if (currDay == 8) currDay = 1;
+            }
+            if (count == 5) answer += 1;
         }
         return answer;
     }
