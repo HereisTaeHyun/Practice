@@ -33,8 +33,8 @@ public class Solution
 
         foreach (var elem in commands)
         {
-            if (elem == "next") vidoePosData[3] += 10;
-            else if (elem == "prev") vidoePosData[3] -= 10;
+            if (elem == "next") vidoePosData[3] += 1;
+            else if (elem == "prev") vidoePosData[3] -= 1;
         }
         
         for (int i = 0; i < vidoePosData.Length; i++)
