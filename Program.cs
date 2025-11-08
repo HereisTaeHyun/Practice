@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Formats.Asn1;
 using System.Text.RegularExpressions;
+using System.Security.Cryptography;
 
 
 internal static class Program
@@ -12,15 +13,11 @@ internal static class Program
     {
         Solution solution = new Solution();
 
-        int answer = solution.solution110301(new[] { 730, 855, 700, 720 }, new int[,]
-    {
-        { 710, 700, 650, 735, 700, 931, 912 },
-        { 908, 901, 805, 815, 800, 831, 835 },
-        { 705, 701, 702, 705, 710, 710, 711 },
-        { 707, 731, 859, 913, 934, 931, 905 },
-    }, 1);
-        // foreach (var elem in answer) Console.WriteLine(elem);
-        Console.WriteLine(answer);
+        // int[] answer = solution.solution110304(["muzi", "frodo", "apeach", "neo"], ["muzi frodo", "apeach frodo","frodo neo","muzi neo","apeach muzi"], 2);
+        int[] answer = solution.solution110304(["muzi", "frodo", "apeach", "neo"], ["muzi frodo", "muzi frodo", "muzi frodo",
+                    "apeach frodo","frodo neo", "frodo neo","muzi neo","apeach muzi"], 2);
+        foreach (var elem in answer) Console.WriteLine(elem);
+        // Console.WriteLine(answer);
     }
 }
 
@@ -2000,8 +1997,9 @@ public class Solution
         }
         return answer.ToArray();
     }
-    
-    public int solution110301(int[] schedules, int[,] timelogs, int startday) {
+
+    public int solution110301(int[] schedules, int[,] timelogs, int startday)
+    {
         int answer = 0;
         for (int i = 0; i < schedules.Length; i++)
         {
@@ -2022,6 +2020,198 @@ public class Solution
                 if (currDay == 8) currDay = 1;
             }
             if (count == 5) answer += 1;
+        }
+        return answer;
+    }
+
+    public string[] solution110302(string[] players, string[] callings) {
+        string[] answer = new string[players.Length];
+        Dictionary<string, RunningData> run = new Dictionary<string, RunningData>();
+        run.Add(players[0], new RunningData { frontName = null, afterName = players[1], ranking = 1 });
+        for (int i = 1; i < players.Length - 1; i++) run.Add(players[i], new RunningData { frontName = players[i - 1], afterName = players[i + 1], ranking = i + 1 });
+        run.Add(players[players.Length - 1], new RunningData { frontName = players[players.Length - 2], afterName = null, ranking = players.Length });
+
+        for (int i = 0; i < callings.Length; i++)
+        {
+            var currPlayerName = callings[i];
+            var currPlayer = run[currPlayerName];
+
+            var frontPlayerName = currPlayer.frontName;
+            var frontPlayer = run[frontPlayerName!];
+
+
+            var frontOfFrontPlayerName = frontPlayer.frontName;
+            RunningData frontOfFrontPlayer = default;
+            if (!string.IsNullOrEmpty(frontOfFrontPlayerName))
+            {
+                frontOfFrontPlayer = run[frontOfFrontPlayerName];
+            }
+
+            var afterPlayerName = currPlayer.afterName;
+            RunningData afterPlayer = default;
+            if (!string.IsNullOrEmpty(afterPlayerName))
+            {
+                afterPlayer = run[afterPlayerName];
+            }
+
+            int currRank = currPlayer.ranking;
+            currPlayer.ranking = frontPlayer.ranking;
+            frontPlayer.ranking = currRank;
+
+            currPlayer.frontName = frontOfFrontPlayerName;
+            currPlayer.afterName = frontPlayerName;
+
+            frontPlayer.frontName = currPlayerName;
+            frontPlayer.afterName = afterPlayerName;
+
+            if (!string.IsNullOrEmpty(frontOfFrontPlayerName))
+            {
+                frontOfFrontPlayer.afterName = currPlayerName;
+                run[frontOfFrontPlayerName] = frontOfFrontPlayer;
+            }
+
+            if (!string.IsNullOrEmpty(afterPlayerName))
+            {
+                afterPlayer.frontName = frontPlayerName;
+                run[afterPlayerName] = afterPlayer;
+            }
+
+            run[currPlayerName] = currPlayer;
+            run[frontPlayerName!] = frontPlayer;
+        }
+
+        var sorted = run.OrderBy(x => x.Value.ranking).ToArray();
+        int idx = 0;
+        foreach(var elem in sorted)
+        {
+            answer[idx] = elem.Key;
+            idx += 1;
+        }
+            return answer;
+    }
+
+    public struct RunningData
+    {
+        public string frontName;
+        public string afterName;
+        public int ranking;
+    }
+
+    public int[] solution110303(string[] park, string[] routes)
+    {
+        int[] answer = new int[2];
+        int[] currPos = new int[2];
+
+        int parkWidth = park[0].Length - 1;
+        int parkHeight = park.Length - 1;
+
+        for (int i = 0; i < park.Length; i++)
+        {
+            int idx = park[i].IndexOf('S');
+            if (idx != -1)
+            {
+                currPos[0] = i;
+                currPos[1] = idx;
+                break;
+            }
+        }
+
+        var routesData = new List<(char dir, int move)>();
+        for (int i = 0; i < routes.Length; i++)
+        {
+            string[] currRoute = routes[i].Split(" ");
+            var dir = currRoute[0][0];
+            var move = int.Parse(currRoute[1]);
+            routesData.Add((dir, move));
+        }
+
+        for (int i = 0; i < routesData.Count; i++)
+        {
+            if (!MoveChecker(park, parkWidth, parkHeight, currPos, routesData[i].dir, routesData[i].move)) continue;
+            else
+            {
+                switch (routesData[i].dir)
+                {
+                    case 'E':
+                        currPos[1] += routesData[i].move;
+                        break;
+                    case 'W':
+                        currPos[1] -= routesData[i].move;
+                        break;
+                    case 'S':
+                        currPos[0] += routesData[i].move;
+                        break;
+                    case 'N':
+                        currPos[0] -= routesData[i].move;
+                        break;
+                }
+            }
+        }
+
+        answer = currPos;
+        return answer;
+    }
+
+    public bool MoveChecker(string[] park, int parkWidth, int parkHeight, int[] currPos, char dir, int move)
+    {
+        int[] targetPos = new int[] { currPos[0], currPos[1] };
+        for (int i = 0; i < move; i++)
+        {
+            switch (dir)
+            {
+                case 'E':
+                    targetPos[1] += 1;
+                    break;
+                case 'W':
+                    targetPos[1] -= 1;
+                    break;
+                case 'S':
+                    targetPos[0] += 1;
+                    break;
+                case 'N':
+                    targetPos[0] -= 1;
+                    break;
+            }
+            if (targetPos[0] < 0 || targetPos[0] > parkHeight) return false;
+            else if (targetPos[1] < 0 || targetPos[1] > parkWidth) return false;
+            else if (park[targetPos[0]][targetPos[1]] == 'X') return false;
+        }
+        return true;
+    }
+
+    public int[] solution110304(string[] id_list, string[] report, int k) {
+        int[] answer = new int[id_list.Length];
+        var reportData = new List<(string reporter, string reported)>();
+        for (int i = 0; i < report.Length; i++)
+        {
+            var currReport = report[i].Split(' ');
+            var reporter = currReport[0];
+            var reported = currReport[1];
+            reportData.Add((reporter, reported));
+        }
+        reportData = reportData.Distinct().ToList();
+
+        Dictionary<string, int> reportedData = new Dictionary<string, int>();
+        for (int i = 0; i < id_list.Length; i++) reportedData.Add(id_list[i], 0);
+        for (int i = 0; i < reportData.Count; i++)
+        {
+            var reported = reportData[i].reported;
+            reportedData[reported] += 1;
+        }
+
+        var ban = reportedData.Where(x => x.Value >= k).Select(x => x.Key).ToList();
+
+        for(int i = 0; i < reportData.Count; i++)
+        {
+            for(int j = 0; j < ban.Count; j++)
+            {
+                var banned = ban[j];
+                if(reportData[i].reported == banned)
+                {
+                    int idx = Array.IndexOf(id_list, reportData[i].reporter);
+                    answer[idx] += 1;
+                }
+            }
         }
         return answer;
     }
