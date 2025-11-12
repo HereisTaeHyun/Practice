@@ -13,21 +13,19 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\UnityProject\\Practice\\Practice.csproj",
+      "projectUniqueName": "C:\\Users\\kth88\\OneDrive\\Desktop\\Coding\\Practice\\Practice.csproj",
       "projectName": "Practice",
-      "projectPath": "C:\\UnityProject\\Practice\\Practice.csproj",
+      "projectPath": "C:\\Users\\kth88\\OneDrive\\Desktop\\Coding\\Practice\\Practice.csproj",
       "packagesPath": "C:\\Users\\kth88\\.nuget\\packages\\",
-      "outputPath": "C:\\UnityProject\\Practice\\obj\\",
+      "outputPath": "C:\\Users\\kth88\\OneDrive\\Desktop\\Coding\\Practice\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\kth88\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\kth88\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -46,7 +44,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.100"
+      "SdkAnalysisLevel": "9.0.200"
     },
     "frameworks": {
       "net9.0": {
@@ -67,7 +65,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.203/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
