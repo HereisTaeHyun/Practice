@@ -14,7 +14,7 @@ internal static class Program
     {
         Solution solution = new Solution();
 
-        int answer = solution.solution111203(5000);
+        long answer = solution.solution111205(6);
 
         // foreach (var elem in answer) Console.WriteLine(elem);
         Console.WriteLine(answer);
@@ -381,7 +381,7 @@ public class Solution
         }
         return answer;
     }
-    
+
     public int solution111203(int n)
     {
         int answer = 0;
@@ -405,6 +405,58 @@ public class Solution
                 currPos += point[i] - currPos;
             }
         }
+        return answer;
+    }
+
+    public int solution111204(int[] arr)
+    {
+        int answer = arr[0];
+        for (int i = 1; i < arr.Length; i++) answer = LCM(answer, arr[i]);
+        return answer;
+    }
+
+    public int LCM(int a, int b)
+    {
+        return a * b / GCD(a, b);
+    }
+
+    public int GCD(int a, int b)
+    {
+        if (b == 0) return a;
+        else return GCD(b, a % b);
+    }
+
+    // public long solution111205(int n)
+    // {
+    //     long answer = 0;
+    //     long countOne = n;
+    //     long countTwo = 0;
+    //     long len = countOne + countTwo;
+    //     while (countOne >= 0)
+    //     {
+    //         answer += Factorial(len) / (Factorial(countOne) * Factorial(countTwo));
+    //         answer %= 1234567;
+    //         countOne -= 2;
+    //         countTwo += 1;
+    //         len = countOne + countTwo;
+    //     }
+    //     return answer;
+    // }
+    
+    // public long Factorial(long num)
+    // {
+    //     if (num == 0 || num == 1) return 1;
+    //     else return num * Factorial(num - 1);
+    // }
+
+    public long solution111205(int n)
+    {
+        long answer = 0;
+        long[] fibo = new long[n + 2];
+        fibo[1] = 1;
+        fibo[2] = 2;
+        for (int i = 3; i <= n; i++) fibo[i] = (fibo[i - 1] + fibo[i - 2]) % 1234567;
+        answer = fibo[n];
         return answer;
     }
 }
