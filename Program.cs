@@ -14,7 +14,7 @@ internal static class Program
     {
         Solution solution = new Solution();
 
-        long answer = solution.solution111205(6);
+        int answer = solution.solution111305("[)(]");
 
         // foreach (var elem in answer) Console.WriteLine(elem);
         Console.WriteLine(answer);
@@ -442,7 +442,7 @@ public class Solution
     //     }
     //     return answer;
     // }
-    
+
     // public long Factorial(long num)
     // {
     //     if (num == 0 || num == 1) return 1;
@@ -457,6 +457,149 @@ public class Solution
         fibo[2] = 2;
         for (int i = 3; i <= n; i++) fibo[i] = (fibo[i - 1] + fibo[i - 2]) % 1234567;
         answer = fibo[n];
+        return answer;
+    }
+
+    public int[] solution111301(int n, string[] words)
+    {
+        int[] answer = new int[2];
+        Dictionary<int, HashSet<string>> store = new Dictionary<int, HashSet<string>>();
+        HashSet<string> used = new HashSet<string>();
+        for (int i = 1; i <= n; i++) store.Add(i, new HashSet<string>());
+
+        int idx = 1;
+        char prev = words[0][words[0].Length - 1];
+        char curr = '\0';
+        store[idx].Add(words[0]);
+        used.Add(words[0]);
+        idx += 1;
+
+        for (int i = 1; i < words.Length; i++)
+        {
+            curr = words[i][0];
+            if (curr != prev || store[idx].Contains(words[i]) || used.Contains(words[i]))
+            {
+                answer[0] = idx;
+                answer[1] = i / n + 1;
+                break;
+            }
+            store[idx].Add(words[i]);
+            used.Add(words[i]);
+            prev = words[i][words[i].Length - 1];
+            idx += 1;
+            if (idx > n) idx = 1;
+        }
+        return answer;
+    }
+    
+    public int solution111302(int n, int a, int b)
+    {
+        int answer = 1;
+        int aIdx = a - 1;
+        int bIdx = b - 1;
+        while (Math.Abs(a - b) != 1 || aIdx / 2 != bIdx / 2)
+        {
+            aIdx = a - 1;
+            bIdx = b - 1;
+
+            aIdx /= 2;
+            bIdx /= 2;
+
+            if (a % 2 == 1) a -= aIdx;
+            else if (a % 2 == 0) a -= aIdx + 1;;
+            if (b % 2 == 1) b -= bIdx;
+            else if (b % 2 == 0) b -= bIdx + 1;
+
+            answer += 1;
+        }
+        return answer;
+    }
+
+    public int solution111303(int[] elements) {
+        int answer = 0;
+        List<int> able = new List<int>();
+
+        for(int i = 0; i < elements.Length; i++)
+        {
+            int curr = elements[i];
+            able.Add(curr);
+            for(int j = 1; j < elements.Length; j++)
+            {
+                curr += elements[(i + j) % elements.Length];
+                able.Add(curr);
+            }
+        }
+        able.Sort();
+        able = able.Distinct().ToList();
+        answer = able.Count();
+        return answer;
+    }
+
+    public int solution111304(string[] want, int[] number, string[] discount) {
+        int answer = 0;
+        Dictionary<string, int> store = new Dictionary<string, int>();
+        for(int i = 0; i < want.Length; i++) store.Add(want[i], number[i]);
+
+        for(int i = 0; i < discount.Length; i++)
+        {
+            Dictionary<string, int> able = new Dictionary<string, int>();
+            for(int j = 0; j < want.Length; j++) able.Add(want[j], 0);
+
+            int endDay = Math.Min(i + 10, discount.Length);
+            for(int j = i; j < endDay; j++)
+            {
+                if(!able.TryGetValue(discount[j], out var Value)) able.Add(discount[j], 0);
+                able[discount[j]] += 1;
+            }
+
+            if(able.Count == store.Count && !able.Except(store).Any()) answer += 1;
+        }
+        return answer;
+    }
+
+    public int solution111305(string s) {
+        int answer = 0;
+        StringBuilder stringBuilder = new StringBuilder(s);
+        for(int i = 0; i < s.Length; i++)
+        {
+            char first = stringBuilder[0];
+            stringBuilder.Remove(0, 1);
+            stringBuilder.Append(first);
+
+            bool isValid = true;
+            Stack<Char> checker = new Stack<char>();
+            foreach (var elem in stringBuilder.ToString())
+            {
+                if (elem == '(' || elem == '[' || elem == '{') checker.Push(elem);
+                else if (elem == ')' || elem == ']' || elem == '}')
+                {
+                    if (checker.Count == 0)
+                    {
+                        isValid = false;
+                        continue;
+                    }
+                    char top = checker.Pop();
+                    if (elem == ')' && top != '(')
+                    {
+                        isValid = false;
+                        continue;
+                    }
+                    if (elem == ']' && top != '[')
+                    {
+                        isValid = false;
+                        continue;
+                    }
+                    if (elem == '}' && top != '{')
+                    {
+                        isValid = false;
+                        continue;
+                    }
+                }
+            }
+            if (checker.Count != 0) isValid = false;
+
+            if(isValid) answer += 1;
+        }
         return answer;
     }
 }
