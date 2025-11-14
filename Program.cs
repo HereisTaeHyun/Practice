@@ -14,7 +14,7 @@ internal static class Program
     {
         Solution solution = new Solution();
 
-        int answer = solution.solution111305("[)(]");
+        int answer = solution.solution111403([0, 0, 0, 0, 0]);
 
         // foreach (var elem in answer) Console.WriteLine(elem);
         Console.WriteLine(answer);
@@ -600,6 +600,68 @@ public class Solution
 
             if(isValid) answer += 1;
         }
+        return answer;
+    }
+
+    public int[] solution111401(int n, long left, long right) {
+        int[] answer = new int[right - left + 1];
+
+        long idx = 0;
+        for(long i = left; i <= right; i++)
+        {
+            long row = i / n;
+            long col = i % n;
+            long store = 0;
+
+            if(row >= col) store = row + 1;
+            else store = (row + 1) + (col - row);
+
+            answer[idx] = (int)store;
+            idx += 1;
+        }
+        return answer;
+    }
+
+    public int[,] solution111402(int[,] arr1, int[,] arr2) {
+        int row = arr1.GetLength(0);
+        int col = arr2.GetLength(1);
+
+        int[,] answer = new int[row, col];
+        for(int i = 0; i < row; i++)
+        {
+            for(int j = 0; j < col; j++)
+            {
+                for(int k = 0; k < arr1.GetLength(1); k++)
+                {
+                    int x = arr1[i, k];
+                    int y = arr2[k, j];
+                    answer[i, j] += x * y;
+                }
+            }
+        }
+        return answer;
+    }
+
+    public int solution111403(int[] citations) {
+        int answer = 0;
+
+        int candidate = 1;
+        Dictionary<int, int> candidates = new Dictionary<int, int>();
+        foreach(var elem in citations)
+        {
+            int count = citations.Count(x => x >= candidate);
+            candidates[candidate] = count;
+            candidate += 1;
+        }
+
+        candidate = 0;
+        foreach(var elem in candidates)
+        {
+            int h = elem.Key;
+            int num = elem.Value;
+            if (h <= num && candidate < h) candidate = h;
+        }
+        answer = candidate;
         return answer;
     }
 }
