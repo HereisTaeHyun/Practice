@@ -2855,4 +2855,478 @@ public class Solution1
         answer -= 1;
         return answer;
     }
+
+        int answer111903 = 0;
+    public int solution111801(int k, int[,] dungeons) {
+        int answer = 0;
+        bool[] visit = new bool[dungeons.GetLength(0)];
+        answer = DFS1118(k, visit, dungeons, answer);
+        return answer;
+    }
+    public int DFS1118(int k, bool[] visit, int[,] dungeons, int prev)
+    {
+        int curr = prev;
+        for(int i = 0; i < dungeons.GetLength(0); i++)
+        {
+            if(visit[i] || dungeons[i, 0] > k) continue;
+
+            visit[i] = true;
+            k -= dungeons[i, 1];
+            curr = Math.Max(DFS1118(k, visit, dungeons, prev + 1), curr);
+            visit[i] = false;
+        }
+        return curr;
+    }
+
+    public int[] solution111802(int[] progresses, int[] speeds) {
+        int[] answer = new int[100];
+        Dictionary<int, int> develop = new Dictionary<int, int>();
+        for(int i = 0; i < progresses.Length; i++)
+        {
+            develop[i] = (100 - progresses[i]) / speeds[i];
+            if((100 - progresses[i]) % speeds[i] > 0) develop[i] += 1;
+        }
+
+        int dayIdx = 0;
+        int day = develop[dayIdx];
+        int checkIdx = 0;
+        foreach(var elem in develop)
+        {
+            int currDay = develop[checkIdx];
+
+            if(currDay <= day) answer[dayIdx] += 1;
+            else
+            {
+                day = currDay;
+                dayIdx += 1;
+                answer[dayIdx] += 1;
+            }
+            checkIdx += 1;
+        }
+
+        int count = answer.Count(x => x == 0);
+        Array.Resize(ref answer, answer.Length - count);
+        return answer;
+    }
+
+    public int solution111803(int[] priorities, int location) {
+        int answer = 0;
+
+        Queue<(int index, int priority)> store = new Queue<(int index, int priority)>();
+        for (int i = 0; i < priorities.Length; i++) store.Enqueue((i, priorities[i]));
+
+        bool activate = true;
+        while(activate)
+        {
+            var curr = store.Peek();
+            int priority = curr.priority;
+            bool isMax = !store.Any(x => x.priority > priority);
+
+            if(isMax)
+            {
+                curr = store.Dequeue();
+                int idx = curr.index;
+                answer += 1;
+                if(idx == location) activate = false;
+            }
+            else
+            {
+                curr = store.Dequeue();
+                store.Enqueue(curr);
+            }
+        }
+        return answer;
+    }
+
+    public int solution111901(int[] topping) {
+        int answer = 0;
+        HashSet<int> left = new HashSet<int>();
+        Dictionary<int, int> right = new Dictionary<int, int>();
+        foreach(var elem in topping)
+        {
+            if(!right.ContainsKey(elem)) right.Add(elem, 0);
+            right[elem] += 1;
+        }
+
+        foreach(var elem in topping)
+        {
+            left.Add(elem);
+            right[elem] -= 1;
+            if(right[elem] == 0) right.Remove(elem);
+            if(left.Count == right.Count) answer += 1;
+        }
+        return answer;
+    }
+
+    public int solution111902(int[,] maps) {
+        int answer = 0;
+        int h = maps.GetLength(0);
+        int w = maps.GetLength(1);
+
+        int[] dx = {0, 0, 1, -1};
+        int[] dy = {1, -1, 0, 0};
+
+        bool[,] visited = new bool[h, w];
+        var q = new Queue<(int y, int x, int dist)>();
+
+        visited[0, 0] = true;
+        q.Enqueue((0, 0, 1));
+
+        while(q.Count > 0)
+        {
+            var (y, x, dist) = q.Dequeue();
+            if (x == w - 1 && y == h - 1) return dist;
+
+             for(int dir = 0; dir < 4; dir++)
+            {
+                int nx = x + dx[dir];
+                int ny = y + dy[dir];
+
+                if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+                if (visited[ny, nx]) continue;
+                if (maps[ny, nx] == 0) continue;
+
+                visited[ny, nx] = true;
+                q.Enqueue((ny, nx, dist + 1));
+            }
+        }
+        return answer;
+    }
+
+    // public void DFS1119(int x, int y, bool[,] visited, int[,] maps, List<int> store, int count)
+    // {
+    //     int h = maps.GetLength(0);
+    //     int w = maps.GetLength(1);
+    //     if (x == w - 1 && y == h - 1) store.Add(count);
+
+    //     if (visited[y, x]) return;
+        
+    //     visited[y, x] = true;
+    //     int[] dx = {0, 0, 1, -1};
+    //     int[] dy = {1, -1, 0, 0};
+
+    //     for(int dir = 0; dir < 4; dir++)
+    //     {
+    //         int nx = x + dx[dir];
+    //         int ny = y + dy[dir];
+
+    //         if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+    //         if (visited[ny, nx]) continue;
+    //         if (maps[ny, nx] == 0) continue;
+
+    //         DFS1119(nx, ny, visited, maps, store, count + 1);
+    //     }
+
+    //     visited[y, x] = false;
+    // }
+
+    public int solution111903(int[] numbers, int target) {
+        DFS1119(0, 0, numbers.Length, target, numbers);
+        return answer111903;
+    }
+
+    public void DFS1119(int sum, int idx, int end, int target, int[] numbers)
+    {
+        if(idx < end)
+        {
+            DFS1119(sum + numbers[idx], idx + 1, end, target, numbers);
+            DFS1119(sum - numbers[idx], idx + 1, end, target, numbers);
+        }
+        else if(sum == target) answer111903 += 1;
+    }
+
+    public int solution111904(string dirs) {
+        int answer = 0;
+        HashSet<Tuple<int, int, int, int>> path = new HashSet<Tuple<int, int, int, int>>();
+        int currX = 5;
+        int currY = 5;
+        char[] commands = dirs.ToCharArray();
+
+        foreach(var elem in commands)
+        {
+            if(Checker(currX, currY, elem, out int newX, out int newY))
+            {
+                path.Add(Tuple.Create(currX, currY, newX, newY));
+                path.Add(Tuple.Create(newX, newY, currX, currY));;
+                currX = newX;
+                currY = newY;
+            }
+        }
+        answer = path.Count / 2;
+        return answer;
+    }
+
+    public bool Checker(int currX, int currY, char command, out int newX, out int newY)
+    {
+        newX = currX;
+        newY = currY;
+
+        switch(command)
+        {
+            case 'U': newY -= 1; break;
+            case 'D': newY += 1; break;
+            case 'L': newX -= 1; break;
+            case 'R': newX += 1; break;
+        }
+
+        if (newX < 0 || newY < 0 || newX >= 11 || newY >= 11) return false;
+        return true;
+    }
+
+    public int solution112001(string word) {
+        int answer = 0;
+        string [] dict = new string[3905];
+        string[] words = new string[] {"A", "E", "I", "O", "U"};
+
+        int count = 0;
+        foreach(string first in words)
+        {
+            dict[count] = first;
+            count += 1;
+            foreach(string second in words)
+            {
+                dict[count] = first + second;
+                count += 1;
+                foreach(string third in words)
+                {
+                    dict[count] = first + second + third;
+                    count += 1;
+                    foreach(string forth in words)
+                    {
+                        dict[count] = first + second + third + forth;
+                        count += 1;
+                        foreach(string fifth in words)
+                        {
+                            dict[count] = first + second + third + forth + fifth;
+                            count += 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        int pos = Array.IndexOf(dict, word) + 1;
+        answer = pos;
+        return answer;
+    }
+
+    // public int[] solution112401(int[] numbers) {
+    //     int[] answer = new int[numbers.Length];
+    //     for(int i = 0; i < numbers.Length; i++)
+    //     {
+    //         for(int j = i; j < numbers.Length; j++)
+    //         {
+    //             if(numbers[i] < numbers[j])
+    //             {
+    //                 answer[i] = numbers[j];
+    //                 break;
+    //             }
+    //             else if(j == numbers.Length - 1) answer[i] = -1;
+    //         }
+    //     }
+    //     return answer;
+    // }
+
+    // public int[] solution112401(int[] numbers) {
+    //     int[] answer = new int[numbers.Length];
+    //     Dictionary<int, int> store = new Dictionary<int, int>();
+    //     for(int i = 0; i < numbers.Length; i++) store[numbers[i]] = i;
+    //     Stack<int> stack = new Stack<int>();
+
+    //     stack.Push(numbers[0]);
+    //     for(int i = 1; i < numbers.Length; i++)
+    //     {
+    //         int curr = numbers[i];
+    //         if(stack.Peek() < curr)
+    //         {
+    //             while(stack.Count > 0 && stack.Peek() < curr)
+    //             {
+    //                 int target = stack.Pop();
+    //                 int idx = store[target];
+    //                 answer[idx] = curr;
+    //             }
+    //         }
+    //         stack.Push(curr);
+    //     }
+
+    //     int remain = stack.Count;
+    //     for(int i = 0; i < remain; i++)
+    //     {
+    //         int target = stack.Pop();
+    //         int idx = store[target];
+    //         answer[idx] = -1;
+    //     }
+    //     return answer;
+    // }
+
+    public int[] solution112401(int[] numbers) {
+        int[] answer = new int[numbers.Length];
+        Stack<int> stack = new Stack<int>();
+
+        for(int i = 0; i < numbers.Length; i++)
+        {
+            int idx = i;
+            int curr = numbers[idx];
+
+            while(stack.Count != 0)
+            {
+                if(numbers[stack.Peek()] >= curr) break;
+                else
+                {
+                    answer[stack.Peek()] = curr;
+                    stack.Pop();
+                }
+            }
+            stack.Push(i);
+        }
+
+        int remain = stack.Count;
+        for(int i = 0; i < remain; i++)
+        {
+            int target = stack.Pop();
+            answer[target] = -1;
+        }
+        return answer;
+    }
+
+        // public int solution112402(int n, int k) {
+    //     int answer = 0;
+    //     string baseNum = ToBaseN(n, k);
+    //     List<int> prime = new List<int>();
+
+    //     StringBuilder stringBuilder = new StringBuilder();
+
+    //     bool making = false;
+    //     foreach(var elem in baseNum)
+    //     {
+    //         if(elem != '0')
+    //         {
+    //             making = true;
+    //             stringBuilder.Append(elem);
+    //         }
+    //         else if(elem == '0' && making)
+    //         {
+    //             string curr = stringBuilder.ToString();
+    //             prime.Add(int.Parse(curr));
+    //             making = false;
+    //             stringBuilder.Clear();
+    //         }
+    //     }
+
+    //     if(stringBuilder.Length != 0)
+    //     {
+    //         string curr = stringBuilder.ToString();
+    //         prime.Add(int.Parse(curr));
+    //         stringBuilder.Clear();
+    //     }
+
+    //     int maxNum = prime.Max();
+    //     bool[] eratos = Eratos(maxNum);
+
+    //     for (int i = prime.Count - 1; i >= 0; i--)
+    //     {
+    //         int elem = prime[i];
+    //         if (eratos[elem] == false)
+    //         {
+    //             prime.RemoveAt(i);
+    //         }
+    //     }
+
+    //     string[] splited = baseNum.Split('0', StringSplitOptions.RemoveEmptyEntries);
+    //     foreach(var elem in splited)
+    //     {
+    //         if(prime.Contains(int.Parse(elem))) answer += 1;
+    //     }
+    //     return answer;
+    // }
+
+    // public string ToBaseN(int number, int n)
+    // {
+    //     if (number == 0) return "0";
+    //     string result = "";
+    //     while (number > 0)
+    //     {
+    //         result = (number % n) + result;
+    //         number /= n;
+    //     }
+    //     return result;
+    // }
+
+    // public bool[] Eratos(int n)
+    // {
+    //     bool[] eratos = Enumerable.Repeat(true, n + 1).ToArray();
+    //     eratos[0] = false;
+    //     eratos[1] = false;
+    //     for (int i = 2; i * i <= n; i++)
+    //     {
+    //         if (!eratos[i]) continue;
+    //         for (int j = i * i; j <= n; j += i)
+    //         {
+    //             eratos[j] = false;
+    //         }
+    //     }
+    //     return eratos;
+    // }
+
+    public int solution112402(int n, int k) {
+        int answer = 0;
+        string baseNum = ToBaseN(n, k);
+        List<string> prime = new List<string>();
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        bool making = false;
+        foreach(var elem in baseNum)
+        {
+            if(elem != '0')
+            {
+                making = true;
+                stringBuilder.Append(elem);
+            }
+            else if(elem == '0' && making)
+            {
+                string curr = stringBuilder.ToString();
+                prime.Add(curr);
+                making = false;
+                stringBuilder.Clear();
+            }
+        }
+
+        if(stringBuilder.Length != 0)
+        {
+            string curr = stringBuilder.ToString();
+            prime.Add(curr);
+            stringBuilder.Clear();
+        }
+
+        string[] splited = baseNum.Split('0', StringSplitOptions.RemoveEmptyEntries);
+
+        foreach(var elem in splited)
+        {
+            if(prime.Contains(elem) && isPrime(long.Parse(elem))) answer += 1;
+        }
+        return answer;
+    }
+
+    public bool isPrime(long num)
+    {
+        if (num < 2) return false;
+        for (long i = 2; i * i <= num; i++)
+        {
+            if (num % i == 0) return false;
+        }
+        return true;
+    }
+
+    public string ToBaseN(int number, int n)
+    {
+        if (number == 0) return "0";
+        string result = "";
+        while (number > 0)
+        {
+            result = (number % n) + result;
+            number /= n;
+        }
+        return result;
+    }
 }
