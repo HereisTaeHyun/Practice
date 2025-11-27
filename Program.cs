@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using System.Linq.Expressions;
 using System.Diagnostics.Tracing;
+using System.Collections;
 
 
 internal static class Program
@@ -15,9 +16,16 @@ internal static class Program
     {
         Solution solution = new Solution();
 
-        int answer = solution.solution112602([5, 4, 3, 2, 1]);
-        // foreach (var elem in answer) Console.WriteLine(elem);
-        Console.WriteLine(answer);
+        int[] fees = { 1, 461, 1, 10 };
+
+        string[] records =
+        {
+            "00:00 1234 IN"
+        };
+
+        int[] answer = solution.solution112703(fees, records);
+        foreach (var elem in answer) Console.WriteLine(elem);
+        // Console.WriteLine(answer);
     }
 }
 
@@ -120,6 +128,156 @@ public class Solution
                 }
                 else break;
             }
+        }
+        return answer;
+    }
+
+    // public int solution112701(string skill, string[] skill_trees) {
+    //     int answer = 0;
+    //     int[] skillArray = new int[skill.Length];
+    //     for(int i = 0; i < skill_trees.GetLength(0); i++)
+    //     {
+    //         for(int j = 0; j < skillArray.Length; j++)
+    //         {
+    //             skillArray[j] = skill_trees[i].IndexOf(skill[j]);
+    //         }
+
+    //         bool isSorted = true;
+    //         for (int j = 1; j < skillArray.Length; j++)
+    //         {
+    //             if (skillArray[j - 1].CompareTo(skillArray[j]) > 0) isSorted = false;
+    //         }
+
+    //         if(isSorted) answer += 1;
+    //     }
+    //     return answer;
+    // }
+
+    public int solution112701(string skill, string[] skill_trees) {
+        int answer = 0;
+        bool isValid = true;
+        for(int i = 0; i < skill_trees.GetLength(0); i++)
+        {
+            int skillIdx = 0;
+            foreach(var elem in skill_trees[i])
+            {
+                int idx = skill.IndexOf(elem);
+
+                if(idx == -1) continue;
+                if(idx == skillIdx) skillIdx += 1;
+                else isValid = false;
+            }
+
+            if(isValid) answer += 1;
+        }
+        return answer;
+    }
+
+    public int solution112702(int x, int y, int n) {
+        Queue<(int, int)> bfs = new Queue<(int, int)>();
+        bool[] visited = new bool[y + 1];
+
+        bfs.Enqueue((x, 0));
+        visited[x] = true;
+
+        while(bfs.Count > 0)
+        {
+            var (value, count) = bfs.Dequeue();
+            if(value == y) return count;
+
+            int[] nexts = {value + n, value * 2, value * 3};
+
+            foreach (var next in nexts)
+            {
+                if (next > y) continue;
+                if (visited[next]) continue;
+
+                visited[next] = true;
+                bfs.Enqueue((next, count + 1));
+            }
+        }
+        return -1;
+    }
+
+    public int[] solution112703(int[] fees, string[] records) {
+        var lowData = new List<(int time, string number, string type)>();
+        foreach(var elem in records)
+        {
+            var currData = elem.Split(' ');
+
+            var lowTime = currData[0].Split(':');
+            var trueTime = (int.Parse(lowTime[0]) * 60) + int.Parse(lowTime[1]);
+
+            var number = currData[1];
+            var type = currData[2];
+            lowData.Add((trueTime, number, type));
+        }
+
+        lowData = lowData.OrderBy(x => x.number).ThenBy(x => x.time).ToList();
+
+        Dictionary<string, int> trueData = new Dictionary<string, int>();
+
+        int currIdx = lowData.Count - 2;
+        int prevIdx = lowData.Count - 1;
+        while (currIdx >= 0 && prevIdx >= 1)
+        {
+            var prevNum = lowData[prevIdx].number;
+            var currNum = lowData[currIdx].number;
+
+            var prevType = lowData[prevIdx].type;
+            var currType = lowData[currIdx].type;
+
+            var prevTime = lowData[prevIdx].time;
+            var currTime = lowData[currIdx].time;
+
+            if(prevNum == currNum && prevType == "OUT" && currType == "IN")
+            {
+                if(!trueData.TryGetValue(currNum, out var Value)) trueData.Add(currNum, 0);
+                trueData[currNum] += prevTime - currTime;
+                lowData.RemoveAt(prevIdx);
+                lowData.RemoveAt(currIdx);
+                prevIdx -= 1;
+                currIdx -= 1;
+            }
+            prevIdx -= 1;
+            currIdx -= 1;
+        }
+
+        if(lowData.Count > 0)
+        {
+            int fullTime = (23 * 60) + 59;
+            foreach(var elem in lowData)
+            {
+                if(!trueData.TryGetValue(elem.number, out var Value)) trueData.Add(elem.number, 0);
+                var number = elem.number;
+                var time = elem.time;
+                trueData[number] += fullTime - time;
+            }
+        }
+
+        var moneyData = trueData.ToList();
+        moneyData = moneyData.OrderBy(x => x.Key).ToList();
+
+        for(int i = 0; i < moneyData.Count; i++)
+        {
+            var number = moneyData[i].Key;
+            var time = moneyData[i].Value;
+
+            int fee;
+            if(time <= fees[0]) fee = fees[1];
+            else
+            {
+                int extra = time - fees[0];
+                int unitCount = (int)Math.Ceiling(extra / (float)fees[2]);
+                fee = fees[1] + unitCount * fees[3];
+            }
+            moneyData[i] = new KeyValuePair<string, int>(number, fee);
+        }
+
+        int[] answer = new int[moneyData.Count];
+        for(int i = 0; i < answer.Length; i++)
+        {
+            answer[i] = moneyData[i].Value;
         }
         return answer;
     }
