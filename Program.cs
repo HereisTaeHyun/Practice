@@ -335,10 +335,10 @@ public class Solution
         List<int> numList = numbers.OrderByDescending(x => GetFirstDigit(x)).ThenByDescending(x => x).ToList();
         numList.Reverse();
 
-        for(int i = numList.Count - 2; i <= 0; i--)
+        for(int i = numList.Count - 2; i >= 0; i--)
         {
             int a = numbers[i];
-            int b = numbers[i - 1];
+            int b = numbers[i + 1];
 
             string caseA = a.ToString() + b.ToString();
             string caseB = b.ToString() + a.ToString();
