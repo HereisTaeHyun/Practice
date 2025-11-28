@@ -16,16 +16,9 @@ internal static class Program
     {
         Solution solution = new Solution();
 
-        int[] fees = { 1, 461, 1, 10 };
-
-        string[] records =
-        {
-            "00:00 1234 IN"
-        };
-
-        int[] answer = solution.solution112703(fees, records);
-        foreach (var elem in answer) Console.WriteLine(elem);
-        // Console.WriteLine(answer);
+        string answer = solution.solution112802([3, 30, 34, 5, 9]);
+        // foreach (var elem in answer) Console.WriteLine(elem);
+        Console.WriteLine(answer);
     }
 }
 
@@ -280,6 +273,92 @@ public class Solution
             answer[i] = moneyData[i].Value;
         }
         return answer;
+    }
+
+    // public long[] solution112801(long[] numbers) {
+    //     long[] answer = new long[numbers.Length];
+    //     for(int i = 0; i < numbers.Length; i++)
+    //     {
+    //         long curr = numbers[i];
+    //         long next = curr + 1;
+    //         while(true)
+    //         {
+    //             long numResult = curr ^ next;
+    //             string baseTwo = Convert.ToString(numResult, 2);
+
+    //             long count = baseTwo.Count(c => c == '1');
+    //             if(count <= 2)
+    //             {
+    //                 answer[i] = next;
+    //                 break;
+    //             }
+    //             next += 1;
+    //         }
+    //     }
+    //     return answer;
+    // }
+
+    public long[] solution112801(long[] numbers) {
+        long[] answer = new long[numbers.Length];
+        for(int i = 0; i < numbers.Length; i++)
+        {
+            long curr = numbers[i];
+            string baseTwo = Convert.ToString(curr, 2);
+            if(baseTwo[baseTwo.Length - 1] == '0') answer[i] = curr += 1;
+            else
+            {
+                int count = 0;
+                int scope = baseTwo.Length - 1;
+                while(true)
+                {
+                    if (scope < 0 || baseTwo[scope] == '0') break;
+                    count += 1;
+                    scope -= 1;
+                }
+
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.Append('1');
+                for(int j = 0; j < count - 1; j++)
+                {
+                    stringBuilder.Append('0');
+                }
+                string plusBaseTwo = stringBuilder.ToString();
+                long plusNum = Convert.ToInt64(plusBaseTwo, 2);
+                answer[i] = curr + plusNum;
+            }
+        }
+        return answer;
+    }
+
+    public string solution112802(int[] numbers) {
+        string answer = "";
+        List<int> numList = numbers.OrderByDescending(x => GetFirstDigit(x)).ThenByDescending(x => x).ToList();
+        numList.Reverse();
+
+        for(int i = numList.Count - 2; i <= 0; i--)
+        {
+            int a = numbers[i];
+            int b = numbers[i - 1];
+
+            string caseA = a.ToString() + b.ToString();
+            string caseB = b.ToString() + a.ToString();
+
+            int intCaseA = int.Parse(caseA);
+            int intCaseB = int.Parse(caseB);
+
+            int target = intCaseA > intCaseB ? intCaseA : intCaseB;
+            int remove = intCaseA > intCaseB ? a : b;
+            numList.Remove(remove);
+            answer += target;
+        }
+        return answer;
+    }
+
+    int GetFirstDigit(int x)
+    {
+        while (x >= 10)
+            x /= 10;
+        return x;
     }
 }
 
