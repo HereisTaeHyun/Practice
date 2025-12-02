@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Linq.Expressions;
 using System.Diagnostics.Tracing;
 using System.Collections;
+using System.IO.Compression;
 
 
 internal static class Program
@@ -16,7 +17,7 @@ internal static class Program
     {
         Solution solution = new Solution();
 
-        int answer = solution.solution120103("17");
+        string answer = solution.solution120202("1010", 2);
         // foreach (var elem in answer) Console.WriteLine(elem);
         Console.WriteLine(answer);
     }
@@ -163,6 +164,83 @@ public class Solution
             }
         }
         return eratos;
+    }
+
+    public int solution120201(int bridge_length, int weight, int[] truck_weights) {
+        int answer = 0;
+        int time = 0;
+
+        var bridgeData = (length: bridge_length, maxWeight: weight, currWeight: 0);
+        Queue<int> waitingTruck = new Queue<int>(truck_weights);
+        Queue<(int weight, int enterTime)> onBridge = new Queue<(int weight, int enterTime)>();
+
+        while(waitingTruck.Count > 0 || onBridge.Count > 0)
+        {
+            time += 1;
+
+            if(onBridge.Count > 0)
+            {
+                var currTruck = onBridge.Peek();
+                if(time - currTruck.enterTime >= bridgeData.length)
+                {
+                    var outTruck = onBridge.Dequeue();
+                    bridgeData.currWeight -= outTruck.weight;
+                }
+            }
+
+            if(waitingTruck.Count == 0) continue;
+
+            var nextTruck = waitingTruck.Peek();
+            if(bridgeData.currWeight + nextTruck <= bridgeData.maxWeight)
+            {
+                var inTruckWeight = waitingTruck.Dequeue();
+                bridgeData.currWeight += inTruckWeight;
+                onBridge.Enqueue((inTruckWeight, time));
+            }
+        }
+        answer = time;
+        return answer;
+    }
+
+    public string solution120202(string number, int k) {
+        string answer = "";
+        int[] numArray = number.Select(x => x - '0').ToArray();
+        Stack<int> store = new Stack<int>();
+        
+        store.Push(numArray[0]);
+        int prev = store.Peek();
+        for(int i = 1; i < numArray.Length; i++)
+        {
+            if(store.Count != 0) prev = store.Peek();
+            int curr = numArray[i];
+
+            if(k == 0 || prev >= curr || store.Count == 0) store.Push(curr);
+            else if(prev < curr)
+            {
+                while(prev < curr)
+                {
+                    store.Pop();
+                    k -= 1;
+                    if(k == 0 || store.Count == 0) break;
+                    prev = store.Peek();
+                }
+                store.Push(curr);
+            }
+        }
+
+        while(k > 0)
+        {
+            store.Pop();
+            k -= 1;
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();
+        while (store.Count > 0) stringBuilder.Append(store.Pop());
+        char[] charArray = stringBuilder.ToString().ToCharArray();
+        Array.Reverse(charArray);
+        answer = new string(charArray);
+
+        return answer;
     }
 }
 
