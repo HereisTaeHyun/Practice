@@ -17,9 +17,9 @@ internal static class Program
     {
         Solution solution = new Solution();
 
-        string answer = solution.solution120202("1010", 2);
-        // foreach (var elem in answer) Console.WriteLine(elem);
-        Console.WriteLine(answer);
+        int[] answer = solution.solution120302([1, 2, 3, 4, 5], 7);
+        foreach (var elem in answer) Console.WriteLine(elem);
+        // Console.WriteLine(answer);
     }
 }
 
@@ -240,6 +240,75 @@ public class Solution
         Array.Reverse(charArray);
         answer = new string(charArray);
 
+        return answer;
+    }
+
+    public int[] solution120301(int n) {
+        List<int> answer = new List<int>();
+        int[][] triangle = new int[n][];
+        bool[][] visited = new bool[n][];
+        int totalCount = 0;
+        for(int i = n - 1; i >= 0; i--)
+        {
+            triangle[i] = new int[i + 1];
+            visited[i] = new bool[i + 1];
+            totalCount += visited[i].Length;
+        }
+        
+        int state = 0;
+        int visitedCount = 0;
+        int num = 1;
+        int row = 0;
+        int col = 0;
+        triangle[row][col] = num;
+        visited[row][col] = true;
+        visitedCount += 1;
+        while (visitedCount < totalCount)
+        {
+            switch(state)
+            {
+                case 0:
+                    num += 1;
+                    row += 1;
+                    triangle[row][col] = num;
+                    visited[row][col] = true;
+                    visitedCount += 1;
+                    if(row + 1 >= n || visited[row + 1][col]) state = 1;
+                    break;
+                case 1:
+                    num += 1;
+                    col += 1;
+                    triangle[row][col] = num;
+                    visited[row][col] = true;
+                    visitedCount += 1;
+                    if(col + 1 >= n || visited[row][col + 1]) state = 2;
+                    break;
+                case 2:
+                    num += 1;
+                    row -= 1;
+                    col -= 1;
+                    triangle[row][col] = num;
+                    visited[row][col] = true;
+                    visitedCount += 1;
+                    if(visited[row - 1][col - 1]) state = 0;
+                    break;
+            }
+        }
+
+        for (int i = 0; i < triangle.Length; i++)
+        {
+            for (int j = 0; j < triangle[i].Length; j++)
+            {
+                answer.Add(triangle[i][j]);
+            }
+        }
+        return answer.ToArray();
+    }
+
+    public int[] solution120302(int[] sequence, int k) {
+        int[] answer = new int[] {};
+        int point1 = 0;
+        int point2 = 0;
         return answer;
     }
 }
