@@ -17,9 +17,9 @@ internal static class Program
     {
         Solution solution = new Solution();
 
-        int[] answer = solution.solution120302([1, 2, 3, 4, 5], 7);
-        foreach (var elem in answer) Console.WriteLine(elem);
-        // Console.WriteLine(answer);
+        int answer = solution.solution120303(16);
+        // foreach (var elem in answer) Console.WriteLine(elem);
+        Console.WriteLine(answer);
     }
 }
 
@@ -307,8 +307,81 @@ public class Solution
 
     public int[] solution120302(int[] sequence, int k) {
         int[] answer = new int[] {};
+        List<int[]> store = new List<int[]>();
         int point1 = 0;
         int point2 = 0;
+        int sum = 0;
+        while(true)
+        {
+            if(sum >= k)
+            {
+                if(sum == k) store.Add(new int[] {point1, point2 - 1});
+                sum -= sequence[point1];
+                point1 += 1;
+            }
+            else
+            {
+                if(point2 == sequence.Length) break;
+                sum += sequence[point2];
+                point2 += 1;
+            }
+        }
+
+        int minLen = store.Min(x => x[1] - x[0]);
+        List<int[]> candidates = store.Where(elem => elem[1] - elem[0] == minLen).ToList();
+        answer = candidates[0];
+        return answer;
+    }
+
+    public int solution120303(int storey) {
+        int answer = 0;
+        int[] numArray = storey.ToString().Reverse().Select(x => x - '0').ToArray();
+
+        int count = 0;
+        int idx = 0;
+        while (idx < numArray.Length)
+        {
+            int curr = numArray[idx];
+            int next = (idx + 1 < numArray.Length) ? numArray[idx + 1] : 0;
+            if(numArray[idx] == 0) idx += 1;
+            else if (numArray[idx] == 10)
+            {
+                numArray[idx] = 0;
+                if (idx + 1 < numArray.Length)
+                {
+                    numArray[idx + 1] += 1;
+                }
+                else
+                {
+                    count += 1;
+                }
+                idx += 1;
+            }
+            else if(numArray[idx] < 5)
+            {
+                numArray[idx] -= 1;
+                count += 1;
+            }
+            else if(numArray[idx] > 5)
+            {
+                numArray[idx] += 1;
+                count += 1;
+            }
+            else if (curr == 5)
+            {
+                if (next >= 5)
+                {
+                    numArray[idx] += 1;
+                    count += 1;
+                }
+                else
+                {
+                    numArray[idx] -= 1;
+                    count += 1;
+                }
+            }
+        }
+        answer = count;
         return answer;
     }
 }
