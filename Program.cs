@@ -16,8 +16,7 @@ internal static class Program
     private static void Main(string[] args)
     {
         Solution solution = new Solution();
-
-        int answer = solution.solution120303(16);
+        int answer = solution.solution120402(7, new int[,] {{1,2},{2,7},{3,7},{3,4},{4,5},{6,7}});
         // foreach (var elem in answer) Console.WriteLine(elem);
         Console.WriteLine(answer);
     }
@@ -383,6 +382,84 @@ public class Solution
         }
         answer = count;
         return answer;
+    }
+
+    public long solution120401(int[] weights) {
+        long answer = 0;
+        Dictionary<int, long> weightCount = new Dictionary<int, long>();
+        foreach(var elem in weights)
+        {
+            if(!weightCount.TryGetValue(elem, out var Value)) weightCount.Add(elem, 0);
+            weightCount[elem] += 1;
+        }
+
+        foreach(var elem in weightCount)
+        {
+            long count = elem.Value;
+            answer += count * (count - 1) / 2;
+        }
+
+        foreach(var elem in weights)
+        {
+            if(weightCount.TryGetValue(elem * 2, out var Value2)) answer += weightCount[elem * 2];
+            if(elem % 3 == 0 && weightCount.TryGetValue((elem * 2) / 3, out var Value3)) answer += weightCount[(elem * 2) / 3];
+            if(elem % 4 == 0 && weightCount.TryGetValue((elem * 3) / 4, out var Value4)) answer += weightCount[(elem * 3) / 4];
+        }
+        return answer;
+    }
+
+    public int solution120402(int n, int[,] wires) {
+        int answer = int.MaxValue;
+
+        List<int>[] graph = new List<int>[n + 1];
+        for (int i = 0; i <= n; i++) graph[i] = new List<int>();
+        for(int i = 0; i < wires.GetLength(0); i++)
+        {
+            var node1 = wires[i, 0];
+            var node2 = wires[i, 1];
+            graph[node1].Add(node2);
+            graph[node2].Add(node1);
+        }
+
+        for(int i = 1; i < graph.GetLength(0); i++)
+        {
+            var root = graph[i];
+            bool[] visited = new bool[graph.Length];
+            visited[0] = true;
+            visited[i] = true;
+            var neighborList = new List<(int node, int size)>();
+            foreach (var elem in root)
+            {
+                int count = DFS1204(elem, graph, visited);
+                neighborList.Add((elem, count));
+            }
+            int biggest = neighborList.Max(x => x.size);
+            int sum = neighborList.Sum(x => x.size);
+            int others = sum + 1 - biggest;
+            int candidate = Math.Abs(biggest - others);
+            if(candidate < answer) answer = candidate;
+        }
+        return answer;
+    }
+
+    public int DFS1204(int start, List<int>[] graph, bool[] visited)
+    {
+        int count = 0;
+        Stack<int> road = new Stack<int>();
+        road.Push(start);
+        visited[start] = true;
+        while(road.Count > 0)
+        {
+            int curr = road.Pop();
+            count += 1;
+            foreach(var next in graph[curr])
+            {
+                if (visited[next]) continue;
+                visited[next] = true;
+                road.Push(next);
+            }
+        }
+        return count;
     }
 }
 
