@@ -16,7 +16,7 @@ internal static class Program
     private static void Main(string[] args)
     {
         Solution solution = new Solution();
-        int answer = solution.solution120402(7, new int[,] {{1,2},{2,7},{3,7},{3,4},{4,5},{6,7}});
+        int answer = solution.solution120501(new string[,] {{"15:00", "17:00"}, {"16:40", "18:20"}, {"14:20", "15:20"}, {"14:10", "19:20"}, {"18:20", "21:20"}});
         // foreach (var elem in answer) Console.WriteLine(elem);
         Console.WriteLine(answer);
     }
@@ -460,6 +460,42 @@ public class Solution
             }
         }
         return count;
+    }
+
+    public int solution120501(string[,] book_time) {
+        int answer = 0;
+        var timeData = new List<(int start, int end)>();
+        for(int i = 0; i < book_time.GetLength(0); i++)
+        {
+            var start = book_time[i, 0].Split(':');
+            var end = book_time[i, 1].Split(':');
+            var startTime = int.Parse(start[0]) * 60 + int.Parse(start[1]);
+            var endTime = int.Parse(end[0]) * 60 + int.Parse(end[1]) + 10;
+            timeData.Add((startTime, endTime));
+        }
+        timeData = timeData.OrderBy(x => x.start).ToList();
+
+        var rooms = new List<int>();
+        foreach (var elem in timeData)
+        {
+            int start = elem.start;
+            int end   = elem.end;
+            if(rooms.Count == 0) rooms.Add(end);
+            else
+            {
+                int roomNumber = rooms.FindIndex(x => x <= start);
+                if(roomNumber != -1) rooms[roomNumber] = end;
+                else rooms.Add(end);
+            }
+        }
+        answer = rooms.Count;
+        return answer;
+    }
+
+    // bfs 문제네, bfs 미로 체킹하고 숫자 카운팅하다 레버 시점에서 빠져나오면 됨 
+    public int solution120801(string[] maps) {
+        int answer = 0;
+        return answer;
     }
 }
 
