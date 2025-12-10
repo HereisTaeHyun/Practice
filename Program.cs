@@ -16,7 +16,7 @@ internal static class Program
     private static void Main(string[] args)
     {
         Solution solution = new Solution();
-        int answer = solution.solution120903(	7, 3, [4, 2, 4, 5, 3, 3, 1]);
+        int answer = solution.solution121003(new int[,] {{2,2,6},{1,5,10},{4,2,9},{3,8,3}}, 2, 2, 3);
         // foreach (var elem in answer) Console.WriteLine(elem);
         Console.WriteLine(answer);
     }
@@ -24,324 +24,162 @@ internal static class Program
 
 public class Solution
 {
-    public int solution120801(string[] maps) {
+    public int[] solution121001(string[] maps) {
+        List<int> answer = new List<int>();
         int h = maps.Length;
         int w = maps[0].Length;
 
-        int startY = -1;
-        int startX = -1;
-
-        for (int y = 0; y < h; y++)
-        {
-            int x = maps[y].IndexOf('S');
-            if (x != -1)
-            {
-                startY = y;
-                startX = x;
-                break;
-            }
-        }
-
-        int[] dx = {0, 0, 1, -1};
         int[] dy = {1, -1, 0, 0};
-
-        var queue = new Queue<(int y, int x, int dist, char data)>();
-        bool[,] visited = new bool[h, w];
-
-        queue.Enqueue((startY, startX, 0, 'S'));
-        visited[startY, startX] = true;
-
-        while(queue.Count > 0)
-        {
-            var (y, x, dist, data) = queue.Dequeue();
-            char currData = maps[y][x];
-            if (currData == 'L')
-            {
-                queue = new Queue<(int y, int x, int dist, char data)>();
-                visited = new bool[h, w];
-                queue.Enqueue((y, x, dist, 'L'));
-                break;
-            }
-
-            for(int dir = 0; dir < 4; dir++)
-            {
-                int nx = x + dx[dir];
-                int ny = y + dy[dir];
-
-                if(nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
-                if(visited[ny, nx]) continue;
-
-                char nextData = maps[ny][nx];
-                if (nextData == 'X') continue;
-
-                visited[ny, nx] = true;
-                queue.Enqueue((ny, nx, dist + 1, nextData));
-            }
-        }
-
-        while(queue.Count > 0)
-        {
-            var (y, x, dist, data) = queue.Dequeue();
-            char currData = maps[y][x];
-            if (currData == 'E') return dist;
-
-            for(int dir = 0; dir < 4; dir++)
-            {
-                int nx = x + dx[dir];
-                int ny = y + dy[dir];
-
-                if(nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
-                if(visited[ny, nx]) continue;
-
-                char nextData = maps[ny][nx];
-                if (nextData == 'X') continue;
-
-                visited[ny, nx] = true;
-                queue.Enqueue((ny, nx, dist + 1, nextData));
-            }
-        }
-        return -1;
-    }
-
-    public int solution120802(int[] arrayA, int[] arrayB) {
-        int answer = 0;
-        int gcdOfA = arrayA.Aggregate((x, y) => GCD(x, y));
-        int gcdOfB = arrayB.Aggregate((x, y) => GCD(x, y));
-
-        if (arrayB.All(x => x % gcdOfA != 0)) answer = Math.Max(answer, gcdOfA);
-        if (arrayA.All(x => x % gcdOfB != 0)) answer = Math.Max(answer, gcdOfB);
-
-        return answer;
-    }
-
-    public int GCD(int a, int b)
-    {
-        if (b == 0) return a;
-        else return GCD(b, a % b);
-    }
-
-    public int solution120803(int[] players, int m, int k) {
-        int answer = 0;
-        int server = 0;
-        Queue<(int time, int minus)> serverDeleteTime = new Queue<(int time, int minus)>();
-        for(int i = 0; i < players.Length; i++)
-        {
-            if (serverDeleteTime.Count > 0 && serverDeleteTime.Peek().time == i)
-            {
-                var delete = serverDeleteTime.Dequeue();
-                server -= delete.minus;
-            }
-            int userCount = players[i];
-            if(userCount < m) continue;
-
-            int need = userCount / m;
-            int plused = 0;
-            while(server < need)
-            {
-                server += 1;
-                answer += 1;
-                plused += 1;
-                if(server == need) serverDeleteTime.Enqueue((i + k, plused));
-            }
-        }
-        return answer;
-    }
-
-    // public int solution120901(int N, int[,] road, int K)
-    // {
-    //     int answer = 0;
-
-    //     int[] dist = new int[N + 1];
-    //     for(int i = 0; i < dist.Length; i++) dist[i] = int.MaxValue;
-    //     dist[1] = 0;
-
-    //     List<(int node, int cost)>[] graph = new List<(int node, int cost)>[N + 1];
-    //     for (int i = 0; i <= N; i++) graph[i] = new List<(int node, int cost)>();
-    //     for(int i = 0; i < road.GetLength(0); i++)
-    //     {
-    //         var node1 = road[i, 0];
-    //         var node2 = road[i, 1];
-    //         var cost = road[i, 2];
-
-    //         graph[node1].Add((node2, cost));
-    //         graph[node2].Add((node1, cost));
-    //     }
-
-    //     bool[] visited = new bool[N + 1];
-    //     visited[0] = true;
-
-    //     for(int i = 0; i < N; i++)
-    //     {
-    //         int currNode = -1;
-    //         int currDist = int.MaxValue;
-    //         for(int j = 1; j <= N; j++)
-    //         {
-    //             if(!visited[j] && dist[j] < currDist)
-    //             {
-    //                 currDist = dist[j];
-    //                 currNode = j;
-    //             }
-    //         }
-
-    //         if(currNode == -1) break;
-
-    //         visited[currNode] = true;
-
-    //         foreach(var elem in graph[currNode])
-    //         {
-    //             int next = elem.node;
-    //             int cost = elem.cost;
-    //             int nextDist = currDist + cost;
-    //             if(nextDist < dist[next])
-    //             {
-    //                 dist[next] = nextDist;
-    //             }
-    //         }
-    //     }
-
-    //     for (int i = 1; i <= N; i++) if (dist[i] <= K) answer++;
-    //     return answer;
-    // }
-
-    // public int solution120901(int N, int[,] road, int K)
-    // {
-        // int answer = 0;
-
-        // int[] dist = new int[N + 1];
-        // for(int i = 0; i < dist.Length; i++) dist[i] = int.MaxValue;
-        // dist[1] = 0;
-
-        // List<(int node, int cost)>[] graph = new List<(int node, int cost)>[N + 1];
-        // for (int i = 0; i <= N; i++) graph[i] = new List<(int node, int cost)>();
-        // for(int i = 0; i < road.GetLength(0); i++)
-        // {
-        //     var node1 = road[i, 0];
-        //     var node2 = road[i, 1];
-        //     var cost = road[i, 2];
-
-        //     graph[node1].Add((node2, cost));
-        //     graph[node2].Add((node1, cost));
-        // }
-
-        // PriorityQueue<(int node, int cost), int> priorityQueue = new PriorityQueue<(int node, int cost), int>();
-        // priorityQueue.Enqueue((1, 0), 0);
-
-        // while(priorityQueue.Count > 0)
-        // {
-        //     var (currNode, currDist) = priorityQueue.Dequeue();
-        //     if(currDist > dist[currNode]) continue;
-
-        //     foreach(var elem in graph[currNode])
-        //     {
-        //         int next = elem.node;
-        //         int cost = elem.cost;
-        //         int nextDist = currDist + cost;
-        //         if(nextDist < dist[next])
-        //         {
-        //             dist[next] = nextDist;
-        //             priorityQueue.Enqueue((next, nextDist), nextDist);
-        //         }
-        //     }
-        // }
-
-        // foreach(var elem in dist)
-        // {
-        //     if(elem <= K) answer += 1;
-        // }
-        // return answer;
-    // }
-
-    public int solution120902(string[] board) {
-        int answer = -1;
-        int h = board.Length;
-        int w = board[0].Length;
-
-        int startY = -1;
-        int startX = -1;
-        for(int y = 0; y < h; y++)
-        {
-            int x = board[y].IndexOf('R');
-            if(x != -1)
-            {
-                startY = y;
-                startX = x;
-                break;
-            }
-        }
-
         int[] dx = {0, 0, 1, -1};
-        int[] dy = {1, -1, 0, 0};
 
-        var queue = new Queue<(int y, int x, int count)>();
-        queue.Enqueue((startY, startX, 0));
         bool[,] visited = new bool[h, w];
+        var queue = new Queue<(int y, int x)>();
 
-        queue.Enqueue((startY, startX, 0));
-        visited[startY, startX] = true;
-
-        while(queue.Count > 0)
+        for(int y = 0; y < maps.Length; y++)
         {
-            var (y, x, count) = queue.Dequeue();
-            if (board[y][x] == 'G') return count;
-
-            for(int dir = 0; dir < 4; dir++)
+            for(int x = 0; x < maps[0].Length; x++)
             {
-                int nx = x;
-                int ny = y;
-                while(true)
+                if(!char.IsDigit(maps[y][x])) continue;
+                if(visited[y, x]) continue;
+
+                queue.Enqueue((y, x));
+                visited[y, x] = true;
+                int count = maps[y][x] - '0';
+
+                while(queue.Count > 0)
                 {
-                    int tx = nx + dx[dir];
-                    int ty = ny + dy[dir];
+                    var (currY, currX) = queue.Dequeue();
 
-                    if (tx < 0 || ty < 0 || tx >= w || ty >= h) break;
-                    if (board[ty][tx] == 'D') break;
+                    for(int dir = 0; dir < 4; dir++)
+                    {
+                        int ny = currY + dy[dir];
+                        int nx = currX + dx[dir];
 
-                    nx = tx;
-                    ny = ty;
+                        if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+                        if (visited[ny, nx]) continue;
+                        if(!char.IsDigit(maps[ny][nx])) continue;
+
+                        visited[ny, nx] = true;
+                        count += maps[ny][nx] - '0';
+                        queue.Enqueue((ny, nx));
+                    }
                 }
-                if (nx == x && ny == y) continue;
-                if (visited[ny, nx]) continue;
-                visited[ny, nx] = true;
-                queue.Enqueue((ny, nx, count + 1));
+
+                answer.Add(count);
             }
         }
-        return answer;
+        answer = answer.OrderBy(x => x).ToList();
+
+        if(answer.Count == 0) answer.Add(-1);
+        return answer.ToArray();
     }
 
-    public int solution120903(int n, int k, int[] enemy) {
+    public int[] solution121002(int rows, int columns, int[,] queries) {
+        List<int> answer = new List<int>();
 
-        if(enemy.Length <= k) return k;
-        int answer = k;
-        int deletedSum = 0;
-        int enemySum = 0;
-        SortedDictionary<int, int> delete = new SortedDictionary<int, int>();
-        for(int i = 0; i < k; i++)
+        int num = 1;
+        int[,] matrix = new int[rows, columns];
+        for(int i = 0; i < rows; i++)
         {
-            if(!delete.ContainsKey(enemy[i])) delete.Add(enemy[i], 0);
-            delete[enemy[i]] += 1;
-            deletedSum += enemy[i];
-            enemySum += enemy[i];
-        }
-        for(int i = k; i < enemy.Length; i++)
-        {
-            int currEnemy = enemy[i];
-            int minDelete = delete.First().Key;;
-
-            if(currEnemy > minDelete)
+            for(int j = 0; j < columns; j++)
             {
-                delete[minDelete] -= 1;
-                if(delete[minDelete] == 0) delete.Remove(minDelete);
-                if(!delete.ContainsKey(currEnemy)) delete.Add(currEnemy, 0);
-                delete[currEnemy] += 1;
-
-                deletedSum -= minDelete;
-                deletedSum += currEnemy;
+                matrix[i, j] = num;
+                num += 1;
             }
-            enemySum += currEnemy;
-
-            if(n < enemySum - deletedSum) break;
-            else answer += 1;
         }
+
+        int[] dy = { 0,  1, 0, -1 };
+        int[] dx = { 1,  0,-1,  0 };
+
+        for(int i = 0; i < queries.GetLength(0); i++)
+        {
+            int dir = 0;
+            int top = queries[i, 0] - 1;
+            int left = queries[i, 1] - 1;
+            int bottom = queries[i, 2] - 1;
+            int right = queries[i, 3] - 1;
+
+            int y = top;
+            int x = left;
+
+            List<int> store = new List<int>();
+
+            while(true)
+            {
+                if(dir == 0 && x == right) dir = 1;
+                else if(dir == 1 && y == bottom) dir = 2;
+                else if(dir == 2 && x == left) dir = 3;
+                else if(dir == 3 && y == top) dir = 0;
+
+                store.Add(matrix[y, x]);
+
+                int ny = y + dy[dir];
+                int nx = x + dx[dir];
+
+                if (ny == top && nx == left) break;
+                y = ny;
+                x = nx;
+            }
+
+            int min = store.Min();
+            answer.Add(min);
+
+            dir = 0;
+            y = top;
+            x = left;
+            int idx = store.Count - 1;
+            while(true)
+            {
+                if(dir == 0 && x == right) dir = 1;
+                else if(dir == 1 && y == bottom) dir = 2;
+                else if(dir == 2 && x == left) dir = 3;
+                else if(dir == 3 && y == top) dir = 0;
+
+                matrix[y, x] = store[idx];
+                idx = (idx + 1) % store.Count;
+
+                int ny = y + dy[dir];
+                int nx = x + dx[dir];
+
+                if (ny == top && nx == left) break;
+                y = ny;
+                x = nx;
+            }
+        }
+        return answer.ToArray();
+    }
+
+    public int solution121003(int[,] data, int col, int row_begin, int row_end) {
+        int answer = 0;
+        var sortedData = new List<int[]>();
+        for(int i = 0; i < data.GetLength(0); i++)
+        {
+            int[] row = new int[data.GetLength(1)];
+            for(int j = 0; j < data.GetLength(1); j++)
+            {
+                row[j] = data[i, j];
+            }
+            sortedData.Add(row);
+        }
+
+        int sortPoint1 = col - 1;
+        int sortPoint2 = 0;
+        sortedData = sortedData.OrderBy(row => row[sortPoint1]).ThenByDescending(row => row[sortPoint2]).ToList();
+
+        List<int> S_I = new List<int>();
+        int start = row_begin - 1;
+        int end = row_end - 1;
+        for(int i = start; i <= end; i++)
+        {
+            var currRow = sortedData[i];
+            int S_Now = 0;
+            foreach(var elem in currRow) S_Now += elem % (i + 1);
+            S_I.Add(S_Now);
+        }
+
+        int hash = 0;
+        foreach(var elem in S_I) hash ^= elem;
+        answer = hash;
         return answer;
     }
 }
