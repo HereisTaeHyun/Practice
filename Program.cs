@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Diagnostics.Tracing;
 using System.Collections;
 using System.IO.Compression;
+using System.Runtime.InteropServices;
 
 
 internal static class Program
@@ -16,9 +17,10 @@ internal static class Program
     private static void Main(string[] args)
     {
         Solution solution = new Solution();
-        int answer = solution.solution121003(new int[,] {{2,2,6},{1,5,10},{4,2,9},{3,8,3}}, 2, 2, 3);
-        // foreach (var elem in answer) Console.WriteLine(elem);
-        Console.WriteLine(answer);
+        
+        double[] answer = solution.solution121103(5, new int[,] {{0,0},{0,-1},{2,-3},{3,-3}});
+        foreach (var elem in answer) Console.WriteLine(elem);
+        // Console.WriteLine(answer);
     }
 }
 
@@ -180,6 +182,144 @@ public class Solution
         int hash = 0;
         foreach(var elem in S_I) hash ^= elem;
         answer = hash;
+        return answer;
+    }
+
+    public int[] solution121101(string[,] places) {
+        int[] answer = new int[] {1, 1, 1, 1, 1};
+
+    int[,] able = new int[,]
+    {
+        { 0,  1 }, { 1,  0 }, { 0, -1 }, { -1,  0 },
+        { 0,  2 }, { 1,  1 }, { 2,  0 }, { 1, -1 },
+        { 0, -2 }, { -1, -1 }, { -2, 0 }, { -1, 1 },
+    };
+
+        for(int i = 0; i < places.GetLength(0); i++)
+        {
+            string[] room = new string[5];
+            for(int j = 0; j < 5; j++) room[j] = places[i, j];
+            bool safe = true;
+
+
+            for(int y = 0; y < 5 && safe; y++)
+            {
+                for(int x = 0; x < 5 && safe; x++)
+                {
+                    if (room[y][x] != 'P') continue;
+
+                    for(int pos = 0; pos < able.GetLength(0); pos++)
+                    {
+                        int ny = y + able[pos, 0];
+                        int nx = x + able[pos, 1];
+
+                        if (nx < 0 || ny < 0 || nx >= 5 || ny >= 5) continue;
+                        if (room[ny][nx] != 'P') continue;
+
+                        if(room[ny][nx] == 'P')
+                        {
+                            if (!IsSafe(room, y, x, ny, nx))
+                            {
+                                answer[i] = 0;
+                                safe = false;
+                                break;
+                            }
+                        }
+                    }   
+                }
+            }
+        }
+        return answer;
+    }
+
+    public bool IsSafe(string[] room, int y, int x, int ny, int nx)
+    {
+        int dist = Math.Abs(x - nx) + Math.Abs(y - ny);;
+        if (dist == 1) return false;
+        if (dist == 2)
+        {
+            int dy = ny - y;
+            int dx = nx - x;
+
+            if (dy == 0 && Math.Abs(dx) == 2)
+            {
+                int mx = (x + nx) / 2;
+                if (room[y][mx] != 'X') return false;
+                return true;
+            }
+
+            if (dx == 0 && Math.Abs(dy) == 2)
+            {
+                int my = (y + ny) / 2;
+                if (room[my][x] != 'X') return false;
+                return true;
+            }
+
+            if (Math.Abs(dx) == 1 && Math.Abs(dy) == 1)
+            {
+                if (room[y][nx] != 'X' || room[ny][x] != 'X') return false;
+                return true;
+            }
+        }
+        return true;
+    }
+
+    public int[,] solution121102(int n) {
+        List<int[]> store = new List<int[]>();
+        Hanoi(n, 1, 2, 3, store);
+
+        int[,] answer = new int[store.Count, 2];
+        for(int i = 0; i < answer.GetLength(0); i++)
+        {
+            answer[i, 0] = store[i][0];
+            answer[i, 1] = store[i][1];
+        }
+        return answer;
+    }
+
+    public void Hanoi(int n, int from, int lay, int to, List<int[]> store)
+    {
+        if(n == 1)
+        {
+            store.Add(new int[] {from, to});
+            return;
+        }
+        Hanoi(n - 1, from, to, lay, store);
+        store.Add(new int[] {from, to});
+        Hanoi(n - 1, lay, from, to, store);
+    }
+
+    // 바닥은 0, 범위는 각 rangeX, 최대 높이, 최소 높이 구하여 각 사다리꼴의 크기를 합하면 됨
+    public double[] solution121103(int k, int[,] ranges) {
+        double[] answer = new double[ranges.GetLength(0)];
+        List<int> collatz = new List<int>();
+        int n = 0;
+        while(k > 1)
+        {
+            if(k % 2 == 0)
+            {
+                collatz.Add(k);
+                k /= 2;
+            }
+            else
+            {
+                collatz.Add(k);
+                k = k * 3 + 1;
+            }
+            n += 1;
+        }
+        collatz.Add(1);
+
+        for(int i = 0; i < ranges.GetLength(0); i++)
+        {
+            int rangeX1 = ranges[i, 0];
+            int rangeX2 = n - ranges[i, 1];
+            if(rangeX1 > rangeX2)
+            {
+                answer[i] = 1.0d;
+                continue;
+            }
+        }
         return answer;
     }
 }
