@@ -18,9 +18,9 @@ internal static class Program
     {
         Solution solution = new Solution();
         
-        double[] answer = solution.solution121103(5, new int[,] {{0,0},{0,-1},{2,-3},{3,-3}});
-        foreach (var elem in answer) Console.WriteLine(elem);
-        // Console.WriteLine(answer);
+        int answer = solution.solution121201(	[1, 0, 1], ["iron", "iron", "iron", "iron", "iron", "diamond"]);
+        // foreach (var elem in answer) Console.WriteLine(elem);
+        Console.WriteLine(answer);
     }
 }
 
@@ -313,12 +313,103 @@ public class Solution
         for(int i = 0; i < ranges.GetLength(0); i++)
         {
             int rangeX1 = ranges[i, 0];
-            int rangeX2 = n - ranges[i, 1];
+            int rangeX2 = n - (-ranges[i, 1]);
             if(rangeX1 > rangeX2)
             {
-                answer[i] = 1.0d;
+                answer[i] = -1.0d;
                 continue;
             }
+
+            int start = rangeX1 <= rangeX2 ? rangeX1 : rangeX2;
+            int end = rangeX1 > rangeX2 ? rangeX1 : rangeX2;
+
+            double size = 0.0d;
+            for (int seg = start; seg < end; seg++)
+            {
+                double sizePart = (collatz[seg] + collatz[seg + 1]) / 2.0d;
+                size += sizePart;
+            }
+            answer[i] = size;
+        }
+        return answer;
+    }
+
+    public int solution121201(int[] picks, string[] minerals) {
+        int answer = 0;
+        List<(int value, string[] data)> mineralData = new List<(int value, string[] data)>();
+        
+        int able = picks[0] * 5 + picks[1] * 5 + picks[2] * 5;
+
+        int value = 0;
+        string[] mineralRow = new string[5]; 
+
+        int last = Math.Min(minerals.Length, able);
+        for (int i = 0; i < last; i++)
+        {
+            if (minerals[i] == "diamond")
+            {
+                value += 100;
+                mineralRow[i % 5] = "diamond";
+            }
+            else if (minerals[i] == "iron")
+            {
+                value += 2;
+                mineralRow[i % 5] = "iron";
+            }
+            else if (minerals[i] == "stone")
+            {
+                value += 1;
+                mineralRow[i % 5] = "stone";
+            }
+
+            if ((i != 0 && (i + 1) % 5 == 0) || i == last - 1 || picks.All(x => x == 0))
+            {
+                mineralData.Add((value, mineralRow));
+                value = 0;
+                mineralRow = new string[5];
+            }
+        }
+
+        mineralData = mineralData.OrderByDescending(x => x.value).ToList();
+        int idx = 0;
+        while(picks[0] > 0 && idx < mineralData.Count)
+        {
+            mineralRow = mineralData[idx].data;
+            foreach(var mineral in mineralRow)
+            {
+                if(mineral == null) continue;
+                else if(mineral == "diamond") answer += 1;
+                else if(mineral == "iron") answer += 1;
+                else if(mineral == "stone") answer += 1;
+            }
+            picks[0] -= 1;
+            idx += 1;
+        }
+        while(picks[1] > 0 && idx < mineralData.Count)
+        {
+            mineralRow = mineralData[idx].data;
+            foreach(var mineral in mineralRow)
+            {
+                if(mineral == null) continue;
+                else if(mineral == "diamond") answer += 5;
+                else if(mineral == "iron") answer += 1;
+                else if(mineral == "stone") answer += 1;
+            }
+            picks[1] -= 1;
+            idx += 1;
+        }
+        while(picks[2] > 0 && idx < mineralData.Count)
+        {
+            mineralRow = mineralData[idx].data;
+            foreach(var mineral in mineralRow)
+            {
+                if(mineral == null) continue;
+                else if(mineral == "diamond") answer += 25;
+                else if(mineral == "iron") answer += 5;
+                else if(mineral == "stone") answer += 1;
+            }
+            picks[2] -= 1;
+            idx += 1;
         }
         return answer;
     }

@@ -4408,7 +4408,7 @@ public class Solution1
         for(int i = k; i < enemy.Length; i++)
         {
             int currEnemy = enemy[i];
-            int minDelete = delete.First().Key;;
+            int minDelete = delete.First().Key;
 
             if(currEnemy > minDelete)
             {
