@@ -18,400 +18,132 @@ internal static class Program
     {
         Solution solution = new Solution();
         
-        int answer = solution.solution121201(	[1, 0, 1], ["iron", "iron", "iron", "iron", "iron", "diamond"]);
-        // foreach (var elem in answer) Console.WriteLine(elem);
-        Console.WriteLine(answer);
+        int[] answer = solution.solution121503(new int[,] {{40, 10000}, {25, 10000}},	[7000, 9000]);
+        foreach (var elem in answer) Console.WriteLine(elem);
+        // Console.WriteLine(answer);
     }
 }
 
 public class Solution
 {
-    public int[] solution121001(string[] maps) {
-        List<int> answer = new List<int>();
-        int h = maps.Length;
-        int w = maps[0].Length;
-
-        int[] dy = {1, -1, 0, 0};
-        int[] dx = {0, 0, 1, -1};
-
-        bool[,] visited = new bool[h, w];
-        var queue = new Queue<(int y, int x)>();
-
-        for(int y = 0; y < maps.Length; y++)
-        {
-            for(int x = 0; x < maps[0].Length; x++)
-            {
-                if(!char.IsDigit(maps[y][x])) continue;
-                if(visited[y, x]) continue;
-
-                queue.Enqueue((y, x));
-                visited[y, x] = true;
-                int count = maps[y][x] - '0';
-
-                while(queue.Count > 0)
-                {
-                    var (currY, currX) = queue.Dequeue();
-
-                    for(int dir = 0; dir < 4; dir++)
-                    {
-                        int ny = currY + dy[dir];
-                        int nx = currX + dx[dir];
-
-                        if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
-                        if (visited[ny, nx]) continue;
-                        if(!char.IsDigit(maps[ny][nx])) continue;
-
-                        visited[ny, nx] = true;
-                        count += maps[ny][nx] - '0';
-                        queue.Enqueue((ny, nx));
-                    }
-                }
-
-                answer.Add(count);
-            }
-        }
-        answer = answer.OrderBy(x => x).ToList();
-
-        if(answer.Count == 0) answer.Add(-1);
-        return answer.ToArray();
-    }
-
-    public int[] solution121002(int rows, int columns, int[,] queries) {
-        List<int> answer = new List<int>();
-
-        int num = 1;
-        int[,] matrix = new int[rows, columns];
-        for(int i = 0; i < rows; i++)
-        {
-            for(int j = 0; j < columns; j++)
-            {
-                matrix[i, j] = num;
-                num += 1;
-            }
-        }
-
-        int[] dy = { 0,  1, 0, -1 };
-        int[] dx = { 1,  0,-1,  0 };
-
-        for(int i = 0; i < queries.GetLength(0); i++)
-        {
-            int dir = 0;
-            int top = queries[i, 0] - 1;
-            int left = queries[i, 1] - 1;
-            int bottom = queries[i, 2] - 1;
-            int right = queries[i, 3] - 1;
-
-            int y = top;
-            int x = left;
-
-            List<int> store = new List<int>();
-
-            while(true)
-            {
-                if(dir == 0 && x == right) dir = 1;
-                else if(dir == 1 && y == bottom) dir = 2;
-                else if(dir == 2 && x == left) dir = 3;
-                else if(dir == 3 && y == top) dir = 0;
-
-                store.Add(matrix[y, x]);
-
-                int ny = y + dy[dir];
-                int nx = x + dx[dir];
-
-                if (ny == top && nx == left) break;
-                y = ny;
-                x = nx;
-            }
-
-            int min = store.Min();
-            answer.Add(min);
-
-            dir = 0;
-            y = top;
-            x = left;
-            int idx = store.Count - 1;
-            while(true)
-            {
-                if(dir == 0 && x == right) dir = 1;
-                else if(dir == 1 && y == bottom) dir = 2;
-                else if(dir == 2 && x == left) dir = 3;
-                else if(dir == 3 && y == top) dir = 0;
-
-                matrix[y, x] = store[idx];
-                idx = (idx + 1) % store.Count;
-
-                int ny = y + dy[dir];
-                int nx = x + dx[dir];
-
-                if (ny == top && nx == left) break;
-                y = ny;
-                x = nx;
-            }
-        }
-        return answer.ToArray();
-    }
-
-    public int solution121003(int[,] data, int col, int row_begin, int row_end) {
+    public int solution121501(int[] diffs, int[] times, long limit) {
         int answer = 0;
-        var sortedData = new List<int[]>();
-        for(int i = 0; i < data.GetLength(0); i++)
+
+        int left = 1;
+        int right = diffs.Max();
+        while(left <= right)
         {
-            int[] row = new int[data.GetLength(1)];
-            for(int j = 0; j < data.GetLength(1); j++)
+            long sum = 0;
+            int currLevel = (left + right) / 2;
+
+            for(int i = 0; i < diffs.Length; i++)
             {
-                row[j] = data[i, j];
-            }
-            sortedData.Add(row);
-        }
+                int diff = diffs[i];
+                int time = times[i];
 
-        int sortPoint1 = col - 1;
-        int sortPoint2 = 0;
-        sortedData = sortedData.OrderBy(row => row[sortPoint1]).ThenByDescending(row => row[sortPoint2]).ToList();
-
-        List<int> S_I = new List<int>();
-        int start = row_begin - 1;
-        int end = row_end - 1;
-        for(int i = start; i <= end; i++)
-        {
-            var currRow = sortedData[i];
-            int S_Now = 0;
-            foreach(var elem in currRow) S_Now += elem % (i + 1);
-            S_I.Add(S_Now);
-        }
-
-        int hash = 0;
-        foreach(var elem in S_I) hash ^= elem;
-        answer = hash;
-        return answer;
-    }
-
-    public int[] solution121101(string[,] places) {
-        int[] answer = new int[] {1, 1, 1, 1, 1};
-
-    int[,] able = new int[,]
-    {
-        { 0,  1 }, { 1,  0 }, { 0, -1 }, { -1,  0 },
-        { 0,  2 }, { 1,  1 }, { 2,  0 }, { 1, -1 },
-        { 0, -2 }, { -1, -1 }, { -2, 0 }, { -1, 1 },
-    };
-
-        for(int i = 0; i < places.GetLength(0); i++)
-        {
-            string[] room = new string[5];
-            for(int j = 0; j < 5; j++) room[j] = places[i, j];
-            bool safe = true;
-
-
-            for(int y = 0; y < 5 && safe; y++)
-            {
-                for(int x = 0; x < 5 && safe; x++)
+                if(diff <= currLevel) sum += time;
+                else if(diff > currLevel)
                 {
-                    if (room[y][x] != 'P') continue;
-
-                    for(int pos = 0; pos < able.GetLength(0); pos++)
-                    {
-                        int ny = y + able[pos, 0];
-                        int nx = x + able[pos, 1];
-
-                        if (nx < 0 || ny < 0 || nx >= 5 || ny >= 5) continue;
-                        if (room[ny][nx] != 'P') continue;
-
-                        if(room[ny][nx] == 'P')
-                        {
-                            if (!IsSafe(room, y, x, ny, nx))
-                            {
-                                answer[i] = 0;
-                                safe = false;
-                                break;
-                            }
-                        }
-                    }   
+                    if(i == 0) sum += (long) (diff - currLevel) * time + time;
+                    else sum += (long) (diff - currLevel) * (time + times[i - 1]) + time;
                 }
             }
-        }
-        return answer;
-    }
 
-    public bool IsSafe(string[] room, int y, int x, int ny, int nx)
-    {
-        int dist = Math.Abs(x - nx) + Math.Abs(y - ny);;
-        if (dist == 1) return false;
-        if (dist == 2)
-        {
-            int dy = ny - y;
-            int dx = nx - x;
-
-            if (dy == 0 && Math.Abs(dx) == 2)
+            if(sum <= limit)
             {
-                int mx = (x + nx) / 2;
-                if (room[y][mx] != 'X') return false;
-                return true;
-            }
-
-            if (dx == 0 && Math.Abs(dy) == 2)
-            {
-                int my = (y + ny) / 2;
-                if (room[my][x] != 'X') return false;
-                return true;
-            }
-
-            if (Math.Abs(dx) == 1 && Math.Abs(dy) == 1)
-            {
-                if (room[y][nx] != 'X' || room[ny][x] != 'X') return false;
-                return true;
-            }
-        }
-        return true;
-    }
-
-    public int[,] solution121102(int n) {
-        List<int[]> store = new List<int[]>();
-        Hanoi(n, 1, 2, 3, store);
-
-        int[,] answer = new int[store.Count, 2];
-        for(int i = 0; i < answer.GetLength(0); i++)
-        {
-            answer[i, 0] = store[i][0];
-            answer[i, 1] = store[i][1];
-        }
-        return answer;
-    }
-
-    public void Hanoi(int n, int from, int lay, int to, List<int[]> store)
-    {
-        if(n == 1)
-        {
-            store.Add(new int[] {from, to});
-            return;
-        }
-        Hanoi(n - 1, from, to, lay, store);
-        store.Add(new int[] {from, to});
-        Hanoi(n - 1, lay, from, to, store);
-    }
-
-    // 바닥은 0, 범위는 각 rangeX, 최대 높이, 최소 높이 구하여 각 사다리꼴의 크기를 합하면 됨
-    public double[] solution121103(int k, int[,] ranges) {
-        double[] answer = new double[ranges.GetLength(0)];
-        List<int> collatz = new List<int>();
-        int n = 0;
-        while(k > 1)
-        {
-            if(k % 2 == 0)
-            {
-                collatz.Add(k);
-                k /= 2;
+                answer = currLevel;
+                right = currLevel - 1;
             }
             else
             {
-                collatz.Add(k);
-                k = k * 3 + 1;
+                left = currLevel + 1;
             }
-            n += 1;
-        }
-        collatz.Add(1);
-
-        for(int i = 0; i < ranges.GetLength(0); i++)
-        {
-            int rangeX1 = ranges[i, 0];
-            int rangeX2 = n - (-ranges[i, 1]);
-            if(rangeX1 > rangeX2)
-            {
-                answer[i] = -1.0d;
-                continue;
-            }
-
-            int start = rangeX1 <= rangeX2 ? rangeX1 : rangeX2;
-            int end = rangeX1 > rangeX2 ? rangeX1 : rangeX2;
-
-            double size = 0.0d;
-            for (int seg = start; seg < end; seg++)
-            {
-                double sizePart = (collatz[seg] + collatz[seg + 1]) / 2.0d;
-                size += sizePart;
-            }
-            answer[i] = size;
         }
         return answer;
     }
 
-    public int solution121201(int[] picks, string[] minerals) {
-        int answer = 0;
-        List<(int value, string[] data)> mineralData = new List<(int value, string[] data)>();
-        
-        int able = picks[0] * 5 + picks[1] * 5 + picks[2] * 5;
+    public long solution121502(int w, int h) {
+        long answer = 0;
 
-        int value = 0;
-        string[] mineralRow = new string[5]; 
+        int height = Math.Max(w, h);
+        int width = Math.Min(w, h);
+        long all = (long)width * height;
 
-        int last = Math.Min(minerals.Length, able);
-        for (int i = 0; i < last; i++)
-        {
-            if (minerals[i] == "diamond")
-            {
-                value += 100;
-                mineralRow[i % 5] = "diamond";
-            }
-            else if (minerals[i] == "iron")
-            {
-                value += 2;
-                mineralRow[i % 5] = "iron";
-            }
-            else if (minerals[i] == "stone")
-            {
-                value += 1;
-                mineralRow[i % 5] = "stone";
-            }
+        int gcd = GCD(height, width);
+        long deleted =  ((height / gcd) * (width / gcd)) - ((height / gcd) - 1) * ((width / gcd) - 1);
 
-            if ((i != 0 && (i + 1) % 5 == 0) || i == last - 1 || picks.All(x => x == 0))
-            {
-                mineralData.Add((value, mineralRow));
-                value = 0;
-                mineralRow = new string[5];
-            }
-        }
-
-        mineralData = mineralData.OrderByDescending(x => x.value).ToList();
-        int idx = 0;
-        while(picks[0] > 0 && idx < mineralData.Count)
-        {
-            mineralRow = mineralData[idx].data;
-            foreach(var mineral in mineralRow)
-            {
-                if(mineral == null) continue;
-                else if(mineral == "diamond") answer += 1;
-                else if(mineral == "iron") answer += 1;
-                else if(mineral == "stone") answer += 1;
-            }
-            picks[0] -= 1;
-            idx += 1;
-        }
-        while(picks[1] > 0 && idx < mineralData.Count)
-        {
-            mineralRow = mineralData[idx].data;
-            foreach(var mineral in mineralRow)
-            {
-                if(mineral == null) continue;
-                else if(mineral == "diamond") answer += 5;
-                else if(mineral == "iron") answer += 1;
-                else if(mineral == "stone") answer += 1;
-            }
-            picks[1] -= 1;
-            idx += 1;
-        }
-        while(picks[2] > 0 && idx < mineralData.Count)
-        {
-            mineralRow = mineralData[idx].data;
-            foreach(var mineral in mineralRow)
-            {
-                if(mineral == null) continue;
-                else if(mineral == "diamond") answer += 25;
-                else if(mineral == "iron") answer += 5;
-                else if(mineral == "stone") answer += 1;
-            }
-            picks[2] -= 1;
-            idx += 1;
-        }
+        answer = all - deleted * gcd;
         return answer;
+    }
+
+    public int GCD(int a, int b)
+    {
+        if (b == 0) return a;
+        else return GCD(b, a % b);
+    }
+
+    public int[] solution121503(int[,] users, int[] emoticons) {
+        int[] answer = new int[2];
+
+        List<(int buy, int money)> userData = new List<(int buy, int money)>();
+        for(int i = 0; i < users.GetLength(0); i++) userData.Add((users[i, 0], users[i, 1]));
+
+        Dictionary<string, (int subscriber, int take)> data = new Dictionary<string, (int subscriber, int take)>();
+
+        int[] onSale = new int[emoticons.Length];
+        for(int i = 0; i < onSale.Length; i++) onSale[i] = 10;
+
+        int subscriber = 0;
+        int take = 0;
+        for(int i = 0; i < userData.Count; i++)
+        {
+            int usedMoney = 0;
+            for(int j = 0; j < emoticons.Length; j++)
+            {
+                if(userData[i].buy <= onSale[j]) usedMoney += (int)(emoticons[j] - (emoticons[j] * (float)onSale[j] / 100));
+            }
+            if(usedMoney >= userData[i].money) subscriber += 1;
+            else take += usedMoney;
+        }
+        data.TryAdd("1010", (subscriber, take));
+
+        DFS1215(userData, onSale, data, emoticons);
+
+        var best = data.OrderByDescending(x => x.Value.subscriber).ThenByDescending(x => x.Value.take).First();
+        answer[0] = best.Value.subscriber;
+        answer[1] = best.Value.take;
+        return answer;
+    }
+
+    public void DFS1215(List<(int buy, int money)> userData, int[] onSale, Dictionary<string, (int subscriber, int take)> data, int[] emoticons)
+    {
+        for(int i = 0; i < onSale.Length; i++)
+        {
+            int[] newSale = (int[])onSale.Clone();
+            if(newSale[i] >= 40) continue;
+            newSale[i] += 10;
+
+            StringBuilder sb = new StringBuilder();
+            for(int j = 0; j < onSale.Length; j++) sb.Append(newSale[j]);
+            string key = sb.ToString();
+
+            if(data.ContainsKey(key)) continue;
+            
+            int subscriber = 0;
+            int take = 0;
+            for(int j = 0; j < userData.Count; j++)
+            {
+                int usedMoney = 0;
+                for(int k = 0; k < emoticons.Length; k++)
+                {
+                    if(userData[j].buy <= newSale[k]) usedMoney += (int)(emoticons[k] - (emoticons[k] * (float)newSale[k] / 100));
+                }
+                if(usedMoney >= userData[j].money) subscriber += 1;
+                else take += usedMoney;
+            }
+            data.TryAdd(key, (subscriber, take));
+            DFS1215(userData, newSale, data, emoticons);
+        }
     }
 }
 
