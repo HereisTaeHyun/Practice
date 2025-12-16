@@ -18,7 +18,7 @@ internal static class Program
     {
         Solution solution = new Solution();
         
-        int[] answer = solution.solution121503(new int[,] {{40, 10000}, {25, 10000}},	[7000, 9000]);
+        string[] answer = solution.solution121701(new string[,] {{"korean", "11:40", "30"}, {"english", "12:10", "20"}, {"math", "12:30", "40"}});
         foreach (var elem in answer) Console.WriteLine(elem);
         // Console.WriteLine(answer);
     }
@@ -144,6 +144,98 @@ public class Solution
             data.TryAdd(key, (subscriber, take));
             DFS1215(userData, newSale, data, emoticons);
         }
+    }
+
+    public int solution121601(string[] storage, string[] requests) {
+        int answer = 0;
+        int n = storage.Length;
+        int m = storage[0].Length;
+
+        bool[,] empty = new bool[n, m];
+
+        Dictionary<char, List<Tuple<int,int>>> storageData = new Dictionary<char, List<Tuple<int, int>>>();
+        for(int y = 0; y < n; y ++)
+        {
+            for(int x = 0; x < m; x ++)
+            {
+                char currCargo = storage[y][x];
+                if (!storageData.ContainsKey(currCargo)) storageData.Add(currCargo, new List<Tuple<int, int>>());
+                storageData[currCargo].Add(Tuple.Create(y, x));
+            }
+        }
+
+        int[] dy = {1, -1, 0, 0};
+        int[] dx = {0, 0, 1, -1};
+
+        foreach(var command in requests)
+        {
+            var currCargo = command[0];
+            if(!storageData.ContainsKey(currCargo)) continue;
+            var cargoData = storageData[currCargo];
+            if(command.Length == 1)
+            {
+                var removeIdx = new List<int>();
+                var toEmpty = new List<Tuple<int,int>>();
+                for (int i = 0; i < cargoData.Count; i++)
+                {
+                    Queue<(int y, int x)> road = new Queue<(int y, int x)>();
+                    bool[,] visited = new bool[n, m];
+                    int currY = cargoData[i].Item1;
+                    int currX = cargoData[i].Item2;
+                    road.Enqueue((currY, currX));
+
+                    bool touchOutbound = false;
+                    while (road.Count > 0 && !touchOutbound)
+                    {
+                        var pos = road.Dequeue();
+                        int y = pos.y;
+                        int x = pos.x;
+                        
+                        for(int dir = 0; dir < 4; dir++)
+                        {
+                            int ny = y + dy[dir];
+                            int nx = x + dx[dir];
+                            if (nx < 0 || ny < 0 || nx >= m || ny >= n)
+                            {
+                                touchOutbound = true;
+                                break;
+                            }
+
+                            if (visited[ny, nx]) continue;
+                            if(!empty[ny, nx]) continue;
+
+                            visited[ny, nx] = true;
+                            road.Enqueue((ny, nx));
+                        }
+                    }
+                    if(touchOutbound)
+                    {
+                        removeIdx.Add(i);
+                        toEmpty.Add(Tuple.Create(currY, currX));
+                    }
+                }
+
+                for (int r = removeIdx.Count - 1; r >= 0; r--) cargoData.RemoveAt(removeIdx[r]);
+                foreach (var p in toEmpty) empty[p.Item1, p.Item2] = true;
+            }
+            else if(command.Length == 2)
+            {
+                for (int i = cargoData.Count - 1; i >= 0; i--)
+                {
+                    int currY = cargoData[i].Item1;
+                    int currX = cargoData[i].Item2;
+                    cargoData.RemoveAt(i);
+                    empty[currY, currX] = true;
+                }
+            }
+        }
+        foreach(var data in storageData) answer += data.Value.Count;
+        return answer;
+    }
+
+    public string[] solution121701(string[,] plans) {
+        string[] answer = new string[] {};
+        return answer;
     }
 }
 
