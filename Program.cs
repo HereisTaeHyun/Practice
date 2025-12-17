@@ -18,224 +18,115 @@ internal static class Program
     {
         Solution solution = new Solution();
         
-        string[] answer = solution.solution121701(new string[,] {{"korean", "11:40", "30"}, {"english", "12:10", "20"}, {"math", "12:30", "40"}});
-        foreach (var elem in answer) Console.WriteLine(elem);
-        // Console.WriteLine(answer);
+        int answer = solution.solution121702(10, new int[,] {{1, 2, 3, 4, 5}, {6, 7, 8, 9, 10}, {3, 7, 8, 9, 10}, {2, 5, 7, 9, 10}, {3, 4, 5, 6, 7}}, [2, 3, 4, 3, 3]);
+        // foreach (var elem in answer) Console.WriteLine(elem);
+        Console.WriteLine(answer);
     }
 }
 
 public class Solution
 {
-    public int solution121501(int[] diffs, int[] times, long limit) {
-        int answer = 0;
-
-        int left = 1;
-        int right = diffs.Max();
-        while(left <= right)
-        {
-            long sum = 0;
-            int currLevel = (left + right) / 2;
-
-            for(int i = 0; i < diffs.Length; i++)
-            {
-                int diff = diffs[i];
-                int time = times[i];
-
-                if(diff <= currLevel) sum += time;
-                else if(diff > currLevel)
-                {
-                    if(i == 0) sum += (long) (diff - currLevel) * time + time;
-                    else sum += (long) (diff - currLevel) * (time + times[i - 1]) + time;
-                }
-            }
-
-            if(sum <= limit)
-            {
-                answer = currLevel;
-                right = currLevel - 1;
-            }
-            else
-            {
-                left = currLevel + 1;
-            }
-        }
-        return answer;
-    }
-
-    public long solution121502(int w, int h) {
-        long answer = 0;
-
-        int height = Math.Max(w, h);
-        int width = Math.Min(w, h);
-        long all = (long)width * height;
-
-        int gcd = GCD(height, width);
-        long deleted =  ((height / gcd) * (width / gcd)) - ((height / gcd) - 1) * ((width / gcd) - 1);
-
-        answer = all - deleted * gcd;
-        return answer;
-    }
-
-    public int GCD(int a, int b)
-    {
-        if (b == 0) return a;
-        else return GCD(b, a % b);
-    }
-
-    public int[] solution121503(int[,] users, int[] emoticons) {
-        int[] answer = new int[2];
-
-        List<(int buy, int money)> userData = new List<(int buy, int money)>();
-        for(int i = 0; i < users.GetLength(0); i++) userData.Add((users[i, 0], users[i, 1]));
-
-        Dictionary<string, (int subscriber, int take)> data = new Dictionary<string, (int subscriber, int take)>();
-
-        int[] onSale = new int[emoticons.Length];
-        for(int i = 0; i < onSale.Length; i++) onSale[i] = 10;
-
-        int subscriber = 0;
-        int take = 0;
-        for(int i = 0; i < userData.Count; i++)
-        {
-            int usedMoney = 0;
-            for(int j = 0; j < emoticons.Length; j++)
-            {
-                if(userData[i].buy <= onSale[j]) usedMoney += (int)(emoticons[j] - (emoticons[j] * (float)onSale[j] / 100));
-            }
-            if(usedMoney >= userData[i].money) subscriber += 1;
-            else take += usedMoney;
-        }
-        data.TryAdd("1010", (subscriber, take));
-
-        DFS1215(userData, onSale, data, emoticons);
-
-        var best = data.OrderByDescending(x => x.Value.subscriber).ThenByDescending(x => x.Value.take).First();
-        answer[0] = best.Value.subscriber;
-        answer[1] = best.Value.take;
-        return answer;
-    }
-
-    public void DFS1215(List<(int buy, int money)> userData, int[] onSale, Dictionary<string, (int subscriber, int take)> data, int[] emoticons)
-    {
-        for(int i = 0; i < onSale.Length; i++)
-        {
-            int[] newSale = (int[])onSale.Clone();
-            if(newSale[i] >= 40) continue;
-            newSale[i] += 10;
-
-            StringBuilder sb = new StringBuilder();
-            for(int j = 0; j < onSale.Length; j++) sb.Append(newSale[j]);
-            string key = sb.ToString();
-
-            if(data.ContainsKey(key)) continue;
-            
-            int subscriber = 0;
-            int take = 0;
-            for(int j = 0; j < userData.Count; j++)
-            {
-                int usedMoney = 0;
-                for(int k = 0; k < emoticons.Length; k++)
-                {
-                    if(userData[j].buy <= newSale[k]) usedMoney += (int)(emoticons[k] - (emoticons[k] * (float)newSale[k] / 100));
-                }
-                if(usedMoney >= userData[j].money) subscriber += 1;
-                else take += usedMoney;
-            }
-            data.TryAdd(key, (subscriber, take));
-            DFS1215(userData, newSale, data, emoticons);
-        }
-    }
-
-    public int solution121601(string[] storage, string[] requests) {
-        int answer = 0;
-        int n = storage.Length;
-        int m = storage[0].Length;
-
-        bool[,] empty = new bool[n, m];
-
-        Dictionary<char, List<Tuple<int,int>>> storageData = new Dictionary<char, List<Tuple<int, int>>>();
-        for(int y = 0; y < n; y ++)
-        {
-            for(int x = 0; x < m; x ++)
-            {
-                char currCargo = storage[y][x];
-                if (!storageData.ContainsKey(currCargo)) storageData.Add(currCargo, new List<Tuple<int, int>>());
-                storageData[currCargo].Add(Tuple.Create(y, x));
-            }
-        }
-
-        int[] dy = {1, -1, 0, 0};
-        int[] dx = {0, 0, 1, -1};
-
-        foreach(var command in requests)
-        {
-            var currCargo = command[0];
-            if(!storageData.ContainsKey(currCargo)) continue;
-            var cargoData = storageData[currCargo];
-            if(command.Length == 1)
-            {
-                var removeIdx = new List<int>();
-                var toEmpty = new List<Tuple<int,int>>();
-                for (int i = 0; i < cargoData.Count; i++)
-                {
-                    Queue<(int y, int x)> road = new Queue<(int y, int x)>();
-                    bool[,] visited = new bool[n, m];
-                    int currY = cargoData[i].Item1;
-                    int currX = cargoData[i].Item2;
-                    road.Enqueue((currY, currX));
-
-                    bool touchOutbound = false;
-                    while (road.Count > 0 && !touchOutbound)
-                    {
-                        var pos = road.Dequeue();
-                        int y = pos.y;
-                        int x = pos.x;
-                        
-                        for(int dir = 0; dir < 4; dir++)
-                        {
-                            int ny = y + dy[dir];
-                            int nx = x + dx[dir];
-                            if (nx < 0 || ny < 0 || nx >= m || ny >= n)
-                            {
-                                touchOutbound = true;
-                                break;
-                            }
-
-                            if (visited[ny, nx]) continue;
-                            if(!empty[ny, nx]) continue;
-
-                            visited[ny, nx] = true;
-                            road.Enqueue((ny, nx));
-                        }
-                    }
-                    if(touchOutbound)
-                    {
-                        removeIdx.Add(i);
-                        toEmpty.Add(Tuple.Create(currY, currX));
-                    }
-                }
-
-                for (int r = removeIdx.Count - 1; r >= 0; r--) cargoData.RemoveAt(removeIdx[r]);
-                foreach (var p in toEmpty) empty[p.Item1, p.Item2] = true;
-            }
-            else if(command.Length == 2)
-            {
-                for (int i = cargoData.Count - 1; i >= 0; i--)
-                {
-                    int currY = cargoData[i].Item1;
-                    int currX = cargoData[i].Item2;
-                    cargoData.RemoveAt(i);
-                    empty[currY, currX] = true;
-                }
-            }
-        }
-        foreach(var data in storageData) answer += data.Value.Count;
-        return answer;
-    }
-
     public string[] solution121701(string[,] plans) {
-        string[] answer = new string[] {};
+        List<string> answer = new List<string>();
+        var lowAssignments = new List<(string name, int start, int use)>();
+        for(int i = 0; i < plans.GetLength(0); i++)
+        {
+            string name = plans[i, 0];
+            string[] startTimeString = plans[i, 1].Split(":");
+            int startTime = (int.Parse(startTimeString[0]) * 60) + int.Parse(startTimeString[1]);
+            int useTime = int.Parse(plans[i, 2]);
+            lowAssignments.Add((name, startTime, useTime));
+        }
+        lowAssignments = lowAssignments.OrderBy(x => x.start).ToList();
+        
+        var assignments = new Queue<(string name, int start, int use)>();
+        foreach(var elem in lowAssignments) assignments.Enqueue(elem);
+
+        var postponed = new Stack<(string name, int delay)>();
+
+        var first = assignments.Dequeue();
+        var prevName = first.name;
+        var prevUse = first.use;
+        var time = first.start;
+
+        while(assignments.Count >= 0)
+        {
+            var curr = assignments.Dequeue();
+            var currName = curr.name;
+            var currStart = curr.start;
+            var currUse = curr.use;
+
+            if(time + prevUse <= currStart)
+            {
+                answer.Add(prevName);
+                time += prevUse;
+                prevName = currName;;
+                prevUse = currUse;
+                while(postponed.Count > 0 && time < currStart)
+                {
+                    var remain = postponed.Pop();
+                    if(time + remain.delay <= currStart)
+                    {
+                        answer.Add(remain.name);
+                        time += remain.delay;
+                    }
+                    else if(time + remain.delay > currStart)
+                    {
+                        postponed.Push((remain.name, time + remain.delay - currStart));
+                        time = currStart;
+                    }
+                }
+                if (time < currStart) time = currStart;
+            }
+            else if(time + prevUse > currStart)
+            {
+                postponed.Push((prevName, time + prevUse - currStart));
+                prevName = currName;
+                prevUse = currUse;
+                time = currStart;
+            }
+            if(assignments.Count == 0)
+            {
+                answer.Add(currName);
+                break;
+            }
+        }
+        while(postponed.Count > 0)
+        {
+            var next = postponed.Pop();
+            answer.Add(next.name);
+        }
+        return answer.ToArray();
+    }
+
+    public int solution121702(int n, int[,] q, int[] ans) {
+        int answer = 0;
+        DFS1217(ref answer, n, q, new int[5], ans, 1, 0);
         return answer;
+    }
+
+    public void DFS1217(ref int answer, int n, int[,] q, int[] candidate, int[] ans, int start, int count)
+    {
+        if(count == 5)
+        {
+            HashSet<int> set = new HashSet<int>();
+            for(int i = 0; i < 5; i++) set.Add(candidate[i]);
+            for(int i = 0; i < q.GetLength(0); i++)
+            {
+                int sum = 0;
+                for(int j = 0; j < q.GetLength(1); j++)
+                {
+                    if(set.Contains(q[i, j])) sum += 1;
+                }
+                if(sum != ans[i]) return;
+            }
+            answer += 1;
+            return;
+        }
+        for(int i = start; i <= n; i++)
+        {
+            candidate[count] = i;
+            DFS1217(ref answer, n, q, candidate, ans, i + 1, count + 1);
+        } 
     }
 }
-
