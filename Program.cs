@@ -18,7 +18,7 @@ internal static class Program
     {
         Solution solution = new Solution();
         
-        int answer = solution.solution121702(10, new int[,] {{1, 2, 3, 4, 5}, {6, 7, 8, 9, 10}, {3, 7, 8, 9, 10}, {2, 5, 7, 9, 10}, {3, 4, 5, 6, 7}}, [2, 3, 4, 3, 3]);
+        int answer = solution.solution121804(["O.X", ".O.", "..X"]);
         // foreach (var elem in answer) Console.WriteLine(elem);
         Console.WriteLine(answer);
     }
@@ -128,5 +128,102 @@ public class Solution
             candidate[count] = i;
             DFS1217(ref answer, n, q, candidate, ans, i + 1, count + 1);
         } 
+    }
+
+    public long solution121801(int k, int d) {
+        long answer = 0;
+        for(int y = 0; y <= d; y += k)
+        {
+            long x = (long)Math.Pow(d, 2) - (long)Math.Pow(y, 2);
+            long count = (long)Math.Sqrt(x) / k + 1;
+            answer += count;
+        }
+        return answer;
+    }
+
+    public int solution121802(int n) {
+        int answer = 0;
+        int[] chess = new int[n];
+        nQueen(ref answer, n, 0, chess);
+        return answer;
+    }
+
+    public void nQueen(ref int answer, int n, int row, int[] chess)
+    {
+        if(row == n)
+        {
+            answer += 1;
+            return;
+        }
+
+        for(int i = 0; i < n; i++)
+        {
+            chess[row] = i;
+            if(check(chess, row))
+            {
+                nQueen(ref answer, n, row + 1, chess);
+            }
+        }
+    }
+    public bool check(int[] chess, int row)
+    {
+        for(int i = 0; i < row; i++)
+        {
+            if(chess[i] == chess[row]) return false;
+            if(Math.Abs(chess[i] - chess[row]) == Math.Abs(row - i)) return false;
+        }
+        return true;
+    }
+
+    public int solution121803(int[,] targets) {
+        int answer = 0;
+        int rows = targets.GetLength(0);
+        int cols = targets.GetLength(1);
+
+        int[][] temp = new int[rows][];
+        for (int r = 0; r < rows; r++)
+        {
+            temp[r] = new int[cols];
+            for (int c = 0; c < cols; c++) temp[r][c] = targets[r, c];
+        }
+
+        Array.Sort(temp, (a, b) => a[1].CompareTo(b[1]));
+
+        int[,] sorted = new int[rows, cols];
+        for (int r = 0; r < rows; r++)
+            for (int c = 0; c < cols; c++)
+        sorted[r, c] = temp[r][c];
+
+        int curr = 0;
+        for(int i = 0; i < sorted.GetLength(0); i++)
+        {
+            if(sorted[i, 0] < curr) continue;
+            curr = sorted[i, 1];
+            answer += 1;
+        }
+        return answer;
+    }
+
+    public int solution121804(string[] board) {
+        int answer = 0;
+        int oCount = 0;
+        int xCount = 0;
+        for(int i = 0; i < board.Length; i++)
+        {
+            for(int j = 0; i < board[0].Length; j++)
+            {
+                if(board[i][j] == 'O') oCount += 1;
+                else if (board[i][j] == 'X') xCount += 1;
+            }
+        }
+        if(oCount == xCount)
+        {
+            
+        }
+        else if(oCount + 1 == xCount)
+        {
+            
+        }
+        return answer;
     }
 }
