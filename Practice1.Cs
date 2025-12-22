@@ -5016,4 +5016,255 @@ public class Solution1
         foreach(var data in storageData) answer += data.Value.Count;
         return answer;
     }
+
+        public string[] solution121701(string[,] plans) {
+        List<string> answer = new List<string>();
+        var lowAssignments = new List<(string name, int start, int use)>();
+        for(int i = 0; i < plans.GetLength(0); i++)
+        {
+            string name = plans[i, 0];
+            string[] startTimeString = plans[i, 1].Split(":");
+            int startTime = (int.Parse(startTimeString[0]) * 60) + int.Parse(startTimeString[1]);
+            int useTime = int.Parse(plans[i, 2]);
+            lowAssignments.Add((name, startTime, useTime));
+        }
+        lowAssignments = lowAssignments.OrderBy(x => x.start).ToList();
+        
+        var assignments = new Queue<(string name, int start, int use)>();
+        foreach(var elem in lowAssignments) assignments.Enqueue(elem);
+
+        var postponed = new Stack<(string name, int delay)>();
+
+        var first = assignments.Dequeue();
+        var prevName = first.name;
+        var prevUse = first.use;
+        var time = first.start;
+
+        while(assignments.Count >= 0)
+        {
+            var curr = assignments.Dequeue();
+            var currName = curr.name;
+            var currStart = curr.start;
+            var currUse = curr.use;
+
+            if(time + prevUse <= currStart)
+            {
+                answer.Add(prevName);
+                time += prevUse;
+                prevName = currName;;
+                prevUse = currUse;
+                while(postponed.Count > 0 && time < currStart)
+                {
+                    var remain = postponed.Pop();
+                    if(time + remain.delay <= currStart)
+                    {
+                        answer.Add(remain.name);
+                        time += remain.delay;
+                    }
+                    else if(time + remain.delay > currStart)
+                    {
+                        postponed.Push((remain.name, time + remain.delay - currStart));
+                        time = currStart;
+                    }
+                }
+                if (time < currStart) time = currStart;
+            }
+            else if(time + prevUse > currStart)
+            {
+                postponed.Push((prevName, time + prevUse - currStart));
+                prevName = currName;
+                prevUse = currUse;
+                time = currStart;
+            }
+            if(assignments.Count == 0)
+            {
+                answer.Add(currName);
+                break;
+            }
+        }
+        while(postponed.Count > 0)
+        {
+            var next = postponed.Pop();
+            answer.Add(next.name);
+        }
+        return answer.ToArray();
+    }
+
+    public int solution121702(int n, int[,] q, int[] ans) {
+        int answer = 0;
+        DFS1217(ref answer, n, q, new int[5], ans, 1, 0);
+        return answer;
+    }
+
+    public void DFS1217(ref int answer, int n, int[,] q, int[] candidate, int[] ans, int start, int count)
+    {
+        if(count == 5)
+        {
+            HashSet<int> set = new HashSet<int>();
+            for(int i = 0; i < 5; i++) set.Add(candidate[i]);
+            for(int i = 0; i < q.GetLength(0); i++)
+            {
+                int sum = 0;
+                for(int j = 0; j < q.GetLength(1); j++)
+                {
+                    if(set.Contains(q[i, j])) sum += 1;
+                }
+                if(sum != ans[i]) return;
+            }
+            answer += 1;
+            return;
+        }
+        for(int i = start; i <= n; i++)
+        {
+            candidate[count] = i;
+            DFS1217(ref answer, n, q, candidate, ans, i + 1, count + 1);
+        } 
+    }
+
+    public long solution121801(int k, int d) {
+        long answer = 0;
+        for(int y = 0; y <= d; y += k)
+        {
+            long x = (long)Math.Pow(d, 2) - (long)Math.Pow(y, 2);
+            long count = (long)Math.Sqrt(x) / k + 1;
+            answer += count;
+        }
+        return answer;
+    }
+
+    public int solution121802(int n) {
+        int answer = 0;
+        int[] chess = new int[n];
+        nQueen(ref answer, n, 0, chess);
+        return answer;
+    }
+
+    public void nQueen(ref int answer, int n, int row, int[] chess)
+    {
+        if(row == n)
+        {
+            answer += 1;
+            return;
+        }
+
+        for(int i = 0; i < n; i++)
+        {
+            chess[row] = i;
+            if(check(chess, row))
+            {
+                nQueen(ref answer, n, row + 1, chess);
+            }
+        }
+    }
+    public bool check(int[] chess, int row)
+    {
+        for(int i = 0; i < row; i++)
+        {
+            if(chess[i] == chess[row]) return false;
+            if(Math.Abs(chess[i] - chess[row]) == Math.Abs(row - i)) return false;
+        }
+        return true;
+    }
+
+    public int solution121803(int[,] targets) {
+        int answer = 0;
+        int rows = targets.GetLength(0);
+        int cols = targets.GetLength(1);
+
+        int[][] temp = new int[rows][];
+        for (int r = 0; r < rows; r++)
+        {
+            temp[r] = new int[cols];
+            for (int c = 0; c < cols; c++) temp[r][c] = targets[r, c];
+        }
+
+        Array.Sort(temp, (a, b) => a[1].CompareTo(b[1]));
+
+        int[,] sorted = new int[rows, cols];
+        for (int r = 0; r < rows; r++)
+            for (int c = 0; c < cols; c++)
+        sorted[r, c] = temp[r][c];
+
+        int curr = 0;
+        for(int i = 0; i < sorted.GetLength(0); i++)
+        {
+            if(sorted[i, 0] < curr) continue;
+            curr = sorted[i, 1];
+            answer += 1;
+        }
+        return answer;
+    }
+
+    public int solution121804(string[] board) {
+        int oCount = 0;
+        int xCount = 0;
+        for(int i = 0; i < board.Length; i++)
+        {
+            for(int j = 0; j < board[0].Length; j++)
+            {
+                if(board[i][j] == 'O') oCount += 1;
+                else if (board[i][j] == 'X') xCount += 1;
+            }
+        }
+
+        bool xWin = Checker(board, 'X');
+        bool oWin = Checker(board, 'O');
+
+        if (xCount > oCount || oCount > xCount + 1) return 0;
+        if (oWin && xWin) return 0;
+        if (oWin && oCount != xCount + 1) return 0;
+        if (xWin && oCount != xCount) return 0;
+        return 1;
+    }
+
+    public bool Checker(string[] board, char ox)
+    {
+        if(ox == 'X')
+        {
+            for(int i = 0; i < board.Length; i++)
+            {
+                if(board[i][0] == 'X' && board[i][1] == 'X' && board[i][2] == 'X') return true;
+            }
+            for(int i = 0; i < board[0].Length; i++)
+            {
+                if(board[0][i] == 'X' && board[1][i] == 'X' && board[2][i] == 'X') return true;
+            }
+            if(board[0][0] == 'X' && board[1][1] == 'X' && board[2][2] == 'X') return true;
+            if(board[0][2] == 'X' && board[1][1] == 'X' && board[2][0] == 'X') return true;
+        }
+        else if(ox == 'O')
+        {
+            for(int i = 0; i < board.Length; i++)
+            {
+                if(board[i][0] == 'O' && board[i][1] == 'O' && board[i][2] == 'O') return true;
+            }
+            for(int i = 0; i < board[0].Length; i++)
+            {
+                if(board[0][i] == 'O' && board[1][i] == 'O' && board[2][i] == 'O') return true;
+            }
+            if(board[0][0] == 'O' && board[1][1] == 'O' && board[2][2] == 'O') return true;
+            if(board[0][2] == 'O' && board[1][1] == 'O' && board[2][0] == 'O') return true;
+        }
+        return false;
+    }
+
+    public long solution121901(int r1, int r2)
+    {
+        long answer = 0;
+        for(int y = 0; y < r2; y++)
+        {
+            if(y < r1)
+            {
+                long x1 = (long)Math.Pow(r1, 2) - (long)Math.Pow(y, 2);
+                long x2 = (long)Math.Pow(r2, 2) - (long)Math.Pow(y, 2);
+                answer += (long)(Math.Floor(Math.Sqrt(x2)) - Math.Ceiling(Math.Sqrt(x1)) + 1);
+            }
+            else
+            {
+                long x2 = (long)Math.Pow(r2, 2) - (long)Math.Pow(y, 2);
+                answer += (long)Math.Floor(Math.Sqrt(x2));
+            }
+        }
+        return answer * 4;
+    }
 }
