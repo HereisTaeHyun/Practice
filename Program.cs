@@ -18,7 +18,8 @@ internal static class Program
     {
         Solution solution = new Solution();
         
-        int answer = solution.solution122203("JEROEN");
+        long answer = solution.solution122302(4,	5,	[1, 0, 3, 1, 2],	[0, 3, 0, 4, 0]);
+        // int answer = solution.solution122203("AAAJZ");
         // foreach (var elem in answer) Console.WriteLine(elem);
         Console.WriteLine(answer);
     }
@@ -148,17 +149,131 @@ public class Solution
         return answer;
     }
 
-    public int solution122203(string name) {
+    // public int solution122203(string name)
+    // {
+    //     int answer = 0;
+    //     int[] target = name.Select(x => x - 'A').ToArray();
+    //     int[] shift = new int[target.Length];
+    //     for(int i = 0; i < shift.Length; i++) shift[i] = 'A' - 'A';
+
+    //     int count = 0;
+    //     int currIdx = 0;
+    //     int nextIdx = 0;
+
+    //     while(true)
+    //     {
+    //         if (target.SequenceEqual(shift)) break;
+
+    //         int cand1 = currIdx;
+    //         while (target[cand1] == shift[cand1]) cand1 = Wrapper(cand1 + 1, target.Length);
+    //         int cand2 = currIdx;
+    //         while (target[cand2] == shift[cand2]) cand2 = Wrapper(cand2 - 1, target.Length);
+
+    //         int distToNext1 = Math.Abs(currIdx - cand1);
+    //         int priceNext1 = Math.Min(distToNext1, name.Length - distToNext1);
+
+    //         int distToNext2 = Math.Abs(currIdx - cand2);
+    //         int priceNext2 = Math.Min(distToNext2, name.Length - distToNext2);
+
+    //         int truePrice = Math.Min(priceNext1, priceNext2);
+    //         nextIdx = (priceNext1 <= priceNext2) ? cand1 : cand2;
+
+    //         count += truePrice;
+    //         currIdx = nextIdx;
+
+    //         int modifyDist = Math.Abs(target[currIdx] - shift[currIdx]);
+    //         int modifyPrice = Math.Min(modifyDist, 26 - modifyDist);
+
+    //         count += modifyPrice;
+    //         shift[currIdx] = target[currIdx];
+    //     }
+    //     answer = count;
+    //     return answer;
+    // }
+    // idx 이동은 length, 알파벳 이동은 26
+    // public int Wrapper(int num, int size)
+    // {
+    //     return (num % size + size) % size;
+    // }
+
+        public int solution122301(string name)
+    {
         int answer = 0;
         int[] target = name.Select(x => x - 'A').ToArray();
-        int[] store = new int[target.Length];
-        for(int i = 0; i < store.Length; i++) store[i] = 'A' - 'A';
-        
-        return answer;
+        for(int i = 0; i < target.Length; i++)
+        {
+            int modifyPrice = Math.Min(target[i], 26 - target[i]);
+            answer += modifyPrice;
+        }
+
+        int move = name.Length - 1;
+        for(int curr = 0; curr < target.Length; curr++)
+        {
+            int next = curr + 1;
+            while(next < target.Length && target[next] == 0) next += 1;
+            int turnCase = Math.Min(curr + curr + (name.Length - next), curr + (name.Length - next) + (name.Length - next));
+            move = Math.Min(move, turnCase);
+        }
+        return answer + move;
     }
 
-    public int Wrapper(int num)
-    {
-        return (num % 26 + 26) % 26;
+    // public long solution122302(int cap, int n, int[] deliveries, int[] pickups) {
+    //     long answer = 0;
+    //     int delivery = 0;
+    //     int pickup = 0;
+    //     for(int i = n - 1; i >= 0; i--)
+    //     {
+    //         int dist = i + 1;
+    //         if(deliveries[i] != 0 || pickups[i] != 0)
+    //         {
+    //             int count = 0;
+                
+    //             while(deliveries[i] > delivery || pickups[i] > pickup)
+    //             {
+    //                 count += 1;
+    //                 delivery += cap;
+    //                 pickup += cap;
+    //             }
+    //             delivery -= deliveries[i];
+    //             pickup -= pickups[i];
+    //             answer += dist * (long)count * 2;
+    //         }
+    //     }
+    //     return answer;
+    // }
+
+    public long solution122302(int cap, int n, int[] deliveries, int[] pickups) {
+        long answer = 0;
+        int delivery = 0;
+        int pickup = 0;
+        for(int i = n - 1; i >= 0; i--)
+        {
+            int dist = i + 1;
+            if(deliveries[i] != 0 || pickups[i] != 0)
+            {
+                int count = 0;
+
+                int usedD = Math.Min(delivery, deliveries[i]);
+                deliveries[i] -= usedD;
+                delivery -= usedD;
+
+                int usedP = Math.Min(pickup, pickups[i]);
+                pickups[i] -= usedP;
+                pickup -= usedP;
+                
+                while(deliveries[i] > 0 || pickups[i] > 0)
+                {
+                    count += 1;
+                    deliveries[i] -= cap;
+                    pickups[i] -= cap;
+                }
+                if(deliveries[i] < 0 ) delivery += Math.Abs(deliveries[i]);
+                if(pickups[i] < 0) pickup += Math.Abs(pickups[i]);
+                answer += dist * (long)count * 2;
+            }
+            deliveries[i] = 0;
+            pickups[i] = 0;
+        }
+        return answer;
     }
 }
