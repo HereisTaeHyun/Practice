@@ -18,262 +18,90 @@ internal static class Program
     {
         Solution solution = new Solution();
         
-        long answer = solution.solution122302(4,	5,	[1, 0, 3, 1, 2],	[0, 3, 0, 4, 0]);
-        // int answer = solution.solution122203("AAAJZ");
-        // foreach (var elem in answer) Console.WriteLine(elem);
+        long answer = solution.solution122601(new int[,] {{3, 2}, {6, 4}, {4, 7}, {1, 4}},	new int[,] {{4, 2}, {1, 3}, {2, 4}});
+        // long answer = solution.solution122601(new int[,] {{2, 2}, {2, 3}, {2, 7}, {6, 6}, {5, 2}},	new int[,] {{2, 3, 4, 5}, {1, 3, 4, 5}});
         Console.WriteLine(answer);
     }
 }
 
 public class Solution
 {
-    int maxDiff = int.MinValue;
-    int[] apeach;
-    int[] ryan;
-    int[] best;
-    public int[] solution122201(int n, int[] info) {
-        int[] answer = new int[] {};
-        apeach = (int[])info.Clone();
-        ryan = new int[apeach.Length];
-
-        DFS1222(n, 0, n);
-
-        if(best == null) answer = new int[]{ -1 };
-        else answer = best;
-        return answer;
-    }
-
-    public void DFS1222(int n, int idx, int arrows)
-    {
-        if(idx == 11)
-        {
-            ryan[10] += arrows;
-            Calculate();
-            ryan[10] -= arrows;
-            return;
-        }
+    public int solution122601(int[,] points, int[,] routes) {
+        int answer = 0;
         
-        ryan[idx] = 0;
-        DFS1222(n, idx + 1, arrows);
-
-        int need = apeach[idx] + 1;
-        if (need <= arrows)
+        List<Robot> robots = new List<Robot>();
+        for(int i = 0; i < routes.GetLength(0); i++)
         {
-            ryan[idx] = need;
-            DFS1222(n, idx + 1, arrows - need);
-            ryan[idx] = 0;
-        }
-    }
-    public void Calculate()
-    {
-        int ryanScore = 0;
-        int apeachScore = 0;
-        for(int i = 0; i < 11; i++)
-        {
-            if(ryan[i] > apeach[i]) ryanScore += 10 - i;
-            else if(apeach[i] > 0) apeachScore += 10 - i;
+            var sIdx = routes[i, 0] - 1;
+            var start = new int[] {points[sIdx, 0], points[sIdx, 1]};
+            var lastCol = routes.GetLength(1) - 1;
+            var eIdx = routes[i, lastCol] - 1;
+            var end = new int[] { points[eIdx, 0], points[eIdx, 1] };
+            Robot robot = new Robot(start, end);
+            robots.Add(robot);
         }
 
-        int diff = ryanScore - apeachScore;
-
-        if(diff > 0 && diff >= maxDiff)
+        while(robots.Count > 0)
         {
-            if(diff > maxDiff)
+            for(int i = 0; i < routes.GetLength(0); i++)
             {
-                maxDiff = diff;
-                best = (int[])ryan.Clone();
-            }
-            else if (diff == maxDiff && BetterLowScore(ryan))
-            {
-                maxDiff = diff;
-                best = (int[])ryan.Clone();
-            }
-        }
-    }
-
-    bool BetterLowScore(int[] cand)
-    {
-        for (int i = 10; i >= 0; i--)
-        {
-            if (cand[i] != best[i]) return cand[i] > best[i];
-        }
-        return false;
-    }
-
-    public int solution122202(int[] cards) {
-        int answer = 0;
-
-        int currMax = int.MinValue;
-        for(int i = 0; i < cards.Length; i++)
-        {
-            bool[] opened = new bool[cards.Length];
-            List<int> group1 = new List<int>();
-
-            var currCardNum = cards[i];
-            opened[i] = true;
-            group1.Add(currCardNum);
-            var nextCardIdx = currCardNum - 1;
-
-            while(opened[nextCardIdx] != true)
-            {
-                currCardNum = cards[nextCardIdx];
-                opened[nextCardIdx] = true;
-                group1.Add(currCardNum);
-                nextCardIdx = currCardNum - 1;
-            }
-
-            for(int j = 0; j < cards.Length; j++)
-            {
-                if(opened[j] == true) continue;
-                List<int> group2 = new List<int>();
-
-                currCardNum = cards[j];
-                opened[j] = true;
-                group2.Add(currCardNum);
-                nextCardIdx = currCardNum - 1;
-
-                while(opened[nextCardIdx] != true)
+                for(int j = 1; j < routes.GetLength(1); j++)
                 {
-                    currCardNum = cards[nextCardIdx];
-                    opened[nextCardIdx] = true;
-                    group2.Add(currCardNum);
-                    nextCardIdx = currCardNum - 1;
-                }
+                    var robot = robots[i];
 
-                int candidate = group1.Count * group2.Count;
-                if(candidate > currMax) currMax = candidate;
+                    var cIdx = routes[i, j - 1] - 1;
+                    var curr = new int[] {points[cIdx, 0], points[cIdx, 1]};
+                    var nIdx = routes[i, j] - 1;
+                    var next = new int[] {points[nIdx, 0], points[nIdx, 1]};
+                    robot.FindWay(curr, next);
+                }
             }
         }
-        answer = currMax;
-        if(answer == int.MinValue) answer = 0;
         return answer;
     }
 
-    // public int solution122203(string name)
-    // {
-    //     int answer = 0;
-    //     int[] target = name.Select(x => x - 'A').ToArray();
-    //     int[] shift = new int[target.Length];
-    //     for(int i = 0; i < shift.Length; i++) shift[i] = 'A' - 'A';
-
-    //     int count = 0;
-    //     int currIdx = 0;
-    //     int nextIdx = 0;
-
-    //     while(true)
-    //     {
-    //         if (target.SequenceEqual(shift)) break;
-
-    //         int cand1 = currIdx;
-    //         while (target[cand1] == shift[cand1]) cand1 = Wrapper(cand1 + 1, target.Length);
-    //         int cand2 = currIdx;
-    //         while (target[cand2] == shift[cand2]) cand2 = Wrapper(cand2 - 1, target.Length);
-
-    //         int distToNext1 = Math.Abs(currIdx - cand1);
-    //         int priceNext1 = Math.Min(distToNext1, name.Length - distToNext1);
-
-    //         int distToNext2 = Math.Abs(currIdx - cand2);
-    //         int priceNext2 = Math.Min(distToNext2, name.Length - distToNext2);
-
-    //         int truePrice = Math.Min(priceNext1, priceNext2);
-    //         nextIdx = (priceNext1 <= priceNext2) ? cand1 : cand2;
-
-    //         count += truePrice;
-    //         currIdx = nextIdx;
-
-    //         int modifyDist = Math.Abs(target[currIdx] - shift[currIdx]);
-    //         int modifyPrice = Math.Min(modifyDist, 26 - modifyDist);
-
-    //         count += modifyPrice;
-    //         shift[currIdx] = target[currIdx];
-    //     }
-    //     answer = count;
-    //     return answer;
-    // }
-    // idx 이동은 length, 알파벳 이동은 26
-    // public int Wrapper(int num, int size)
-    // {
-    //     return (num % size + size) % size;
-    // }
-
-        public int solution122301(string name)
+    public class Robot
     {
-        int answer = 0;
-        int[] target = name.Select(x => x - 'A').ToArray();
-        for(int i = 0; i < target.Length; i++)
+        public int[] start;
+        public int[] end;
+
+        public Robot(int[] start, int[] end)
         {
-            int modifyPrice = Math.Min(target[i], 26 - target[i]);
-            answer += modifyPrice;
+            this.start = (int[])start.Clone();
+            this.end = (int[])end.Clone();
         }
 
-        int move = name.Length - 1;
-        for(int curr = 0; curr < target.Length; curr++)
+        public List<(int y, int x)> way = new List<(int y, int x)>();
+        public void FindWay(int[] curr, int[] next)
         {
-            int next = curr + 1;
-            while(next < target.Length && target[next] == 0) next += 1;
-            int turnCase = Math.Min(curr + curr + (name.Length - next), curr + (name.Length - next) + (name.Length - next));
-            move = Math.Min(move, turnCase);
-        }
-        return answer + move;
-    }
-
-    // public long solution122302(int cap, int n, int[] deliveries, int[] pickups) {
-    //     long answer = 0;
-    //     int delivery = 0;
-    //     int pickup = 0;
-    //     for(int i = n - 1; i >= 0; i--)
-    //     {
-    //         int dist = i + 1;
-    //         if(deliveries[i] != 0 || pickups[i] != 0)
-    //         {
-    //             int count = 0;
-                
-    //             while(deliveries[i] > delivery || pickups[i] > pickup)
-    //             {
-    //                 count += 1;
-    //                 delivery += cap;
-    //                 pickup += cap;
-    //             }
-    //             delivery -= deliveries[i];
-    //             pickup -= pickups[i];
-    //             answer += dist * (long)count * 2;
-    //         }
-    //     }
-    //     return answer;
-    // }
-
-    public long solution122302(int cap, int n, int[] deliveries, int[] pickups) {
-        long answer = 0;
-        int delivery = 0;
-        int pickup = 0;
-        for(int i = n - 1; i >= 0; i--)
-        {
-            int dist = i + 1;
-            if(deliveries[i] != 0 || pickups[i] != 0)
+            var pos = (int[])curr.Clone();
+            if(way.Count == 0) way.Add((pos[0], pos[1]));
+            while(pos[0] != next[0])
             {
-                int count = 0;
-
-                int usedD = Math.Min(delivery, deliveries[i]);
-                deliveries[i] -= usedD;
-                delivery -= usedD;
-
-                int usedP = Math.Min(pickup, pickups[i]);
-                pickups[i] -= usedP;
-                pickup -= usedP;
-                
-                while(deliveries[i] > 0 || pickups[i] > 0)
+                if(pos[0] < next[0])
                 {
-                    count += 1;
-                    deliveries[i] -= cap;
-                    pickups[i] -= cap;
+                    pos[0] += 1;
+                    way.Add((pos[0], pos[1]));
                 }
-                if(deliveries[i] < 0 ) delivery += Math.Abs(deliveries[i]);
-                if(pickups[i] < 0) pickup += Math.Abs(pickups[i]);
-                answer += dist * (long)count * 2;
+                else if(pos[0] > next[0])
+                {
+                    pos[0] -= 1;
+                    way.Add((pos[0], pos[1]));
+                }
             }
-            deliveries[i] = 0;
-            pickups[i] = 0;
+            while(pos[1] != next[1])
+            {
+                if(pos[1] < next[1])
+                {
+                    pos[1] += 1;
+                    way.Add((pos[0], pos[1]));
+                }
+                else if(pos[1] > next[1])
+                {
+                    pos[1] -= 1;
+                    way.Add((pos[0], pos[1]));
+                }
+            }
         }
-        return answer;
     }
 }
