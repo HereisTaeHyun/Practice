@@ -18,15 +18,16 @@ internal static class Program
     {
         Solution solution = new Solution();
         
-        long answer = solution.solution122601(new int[,] {{3, 2}, {6, 4}, {4, 7}, {1, 4}},	new int[,] {{4, 2}, {1, 3}, {2, 4}});
-        // long answer = solution.solution122601(new int[,] {{2, 2}, {2, 3}, {2, 7}, {6, 6}, {5, 2}},	new int[,] {{2, 3, 4, 5}, {1, 3, 4, 5}});
-        Console.WriteLine(answer);
+        string[] answer = solution.solution010602(new int[,] {{2, -1, 4}, {-2, -1, 4}, {0, -1, 1}, {5, -8, -12}, {5, 8, 12}});
+        
+        foreach(var elem in answer) Console.WriteLine(elem);
+        // Console.WriteLine(answer);
     }
 }
 
 public class Solution
 {
-    public int solution122601(int[,] points, int[,] routes) {
+    public int solution010601(int[,] points, int[,] routes) {
         int answer = 0;
         
         List<Robot> robots = new List<Robot>();
@@ -41,8 +42,7 @@ public class Solution
             robots.Add(robot);
         }
 
-        while(robots.Count > 0)
-        {
+
             for(int i = 0; i < routes.GetLength(0); i++)
             {
                 for(int j = 1; j < routes.GetLength(1); j++)
@@ -56,7 +56,22 @@ public class Solution
                     robot.FindWay(curr, next);
                 }
             }
-        }
+
+            int maxTime = robots.Max(r => r.way.Count);
+            for(int time = 0; time < maxTime; time++)
+            {
+                Dictionary<(int y, int x), int> coordinate = new Dictionary<(int y, int x), int>();
+                for (int robot = 0; robot < robots.Count; robot++)
+                {
+                    if (time >= robots[robot].way.Count) continue;
+                    var pos = robots[robot].way[time];
+                    if(!coordinate.TryGetValue(pos, out var Value)) coordinate.Add(pos, 0);
+                    coordinate[pos] += 1;
+                }
+                var accident = coordinate.Count(x => x.Value >= 2);
+                answer += accident;
+            }
+        
         return answer;
     }
 
@@ -103,5 +118,10 @@ public class Solution
                 }
             }
         }
+    }
+
+    public string[] solution010602(int[,] line) {
+        string[] answer = new string[] {};
+        return answer;
     }
 }
