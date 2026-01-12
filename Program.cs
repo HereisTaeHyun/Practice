@@ -18,110 +18,173 @@ internal static class Program
     {
         Solution solution = new Solution();
         
-        string[] answer = solution.solution010602(new int[,] {{2, -1, 4}, {-2, -1, 4}, {0, -1, 1}, {5, -8, -12}, {5, 8, 12}});
-        
-        foreach(var elem in answer) Console.WriteLine(elem);
-        // Console.WriteLine(answer);
+        int answer = solution.solution011202(new int[,] {{1, 2}, {2, 3}, {2, 1}}, 4, 4);
+        // foreach(var elem in answer) Console.WriteLine(elem);
+        Console.WriteLine(answer);
     }
 }
 
 public class Solution
 {
-    public int solution010601(int[,] points, int[,] routes) {
-        int answer = 0;
-        
-        List<Robot> robots = new List<Robot>();
-        for(int i = 0; i < routes.GetLength(0); i++)
+    public string[] solution011201(int[,] line) {
+        List<(long y, long x)> dots = new List<(long y, long x)>();
+        for(long i = 0; i < line.GetLength(0) - 1; i++)
         {
-            var sIdx = routes[i, 0] - 1;
-            var start = new int[] {points[sIdx, 0], points[sIdx, 1]};
-            var lastCol = routes.GetLength(1) - 1;
-            var eIdx = routes[i, lastCol] - 1;
-            var end = new int[] { points[eIdx, 0], points[eIdx, 1] };
-            Robot robot = new Robot(start, end);
-            robots.Add(robot);
+            for(long j = i + 1; j < line.GetLength(0); j++)
+            {
+                long A = line[i, 0], B = line[i, 1], E = line[i, 2];
+                long C = line[j, 0], D = line[j, 1], F = line[j, 2];
+
+                long det = A * D - B * C;
+                if (det == 0) continue;
+
+                long candidateX = B * F - E * D;
+                long candidateY = E * C - A * F;
+
+                if(candidateX % det != 0 || candidateY % det != 0) continue;
+
+                long x = candidateX / det;
+                long y = candidateY / det;
+                dots.Add((y, x));
+            }
         }
 
+        dots = dots.OrderByDescending(yPos => yPos.y).ThenBy(xPos => xPos.x).ToList();
 
-            for(int i = 0; i < routes.GetLength(0); i++)
+        long minY = dots.Min(p => p.y);
+        long maxY = dots.Max(p => p.y);
+        long minX = dots.Min(p => p.x);
+        long maxX = dots.Max(p => p.x);
+
+        long width  = maxX - minX + 1;
+        long height = maxY - minY + 1;
+
+        string[] answer = new string[height];
+
+        List<(long y, long x)> coordinates = new List<(long y, long x)>();
+        foreach(var dot in dots)
+        {
+            long newY = maxY - dot.y;
+            long newX = dot.x - minX;
+            coordinates.Add((newY, newX));
+        }
+
+        int idx = 0;
+        for(long i = 0; i < height; i++)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            long currY = coordinates[idx].y;
+            if(i != currY)
             {
-                for(int j = 1; j < routes.GetLength(1); j++)
+                for(long j = 0; j < width; j++)
                 {
-                    var robot = robots[i];
-
-                    var cIdx = routes[i, j - 1] - 1;
-                    var curr = new int[] {points[cIdx, 0], points[cIdx, 1]};
-                    var nIdx = routes[i, j] - 1;
-                    var next = new int[] {points[nIdx, 0], points[nIdx, 1]};
-                    robot.FindWay(curr, next);
+                    stringBuilder.Append('.');
                 }
             }
-
-            int maxTime = robots.Max(r => r.way.Count);
-            for(int time = 0; time < maxTime; time++)
+            else if(i == currY)
             {
-                Dictionary<(int y, int x), int> coordinate = new Dictionary<(int y, int x), int>();
-                for (int robot = 0; robot < robots.Count; robot++)
+                List<long> xPoses = new List<long>();
+                while (idx < coordinates.Count && coordinates[idx].y == currY)
                 {
-                    if (time >= robots[robot].way.Count) continue;
-                    var pos = robots[robot].way[time];
-                    if(!coordinate.TryGetValue(pos, out var Value)) coordinate.Add(pos, 0);
-                    coordinate[pos] += 1;
+                    xPoses.Add(coordinates[idx].x);
+                    idx += 1;
                 }
-                var accident = coordinate.Count(x => x.Value >= 2);
-                answer += accident;
+
+                int xIdx = 0;
+                for(long j = 0; j < width; j++)
+                {
+                    if(xIdx < xPoses.Count && xPoses[xIdx] == j)
+                    {
+                        stringBuilder.Append('*');
+                        xIdx += 1;
+                    }
+                    else stringBuilder.Append('.');
+                }
             }
-        
+            answer[i] = stringBuilder.ToString();
+        }
         return answer;
     }
 
-    public class Robot
+    // public int solution011202(int[,] info, int n, int m) {
+    //     int answer = 0;
+    //     List<(int a, int b)> robObject = new List<(int a, int b)>();
+    //     for(int i = 0; i < info.GetLength(0); i++) robObject.Add((info[i, 0], info[i, 1]));
+    //     robObject = robObject.OrderByDescending(x => (double)x.a / x.b).ThenBy(x => x.a).ThenBy(x => x.b).ToList();
+
+    //     int a = 0;
+    //     int b = 0;
+    //     for(int i = 0; i < info.GetLength(0); i++)
+    //     {
+    //         if(info[i, 1] + b < m) b += info[i, 1];
+    //         else a += info[i, 0];
+    //     }
+
+    //     answer = a;
+    //     if(answer >= n) answer = - 1;
+    //     return answer;
+    // }
+    // public int solution011202(int[,] info, int n, int m)
+    // {
+    //     int answer = int.MaxValue;
+    //     int robCount = info.GetLength(0);
+    //     int a = 0;
+    //     int b = 0;
+    //     bool[] visited = new bool[info.GetLength(0)];
+    //     DFS0112(ref answer, 0, robCount, info, visited, a, b, n, m);
+
+    //     if (answer == int.MaxValue) return -1;
+    //     return answer;
+    // }
+    
+    // public void DFS0112(ref int answer, int currCount, int robCount, int[,] info, bool[] visited, int a, int b, int n, int m)
+    // {
+    //     if(a >= n || b >= m) return;
+    //     if(currCount == robCount)
+    //     {
+    //         answer = Math.Min(answer, a);
+    //         return;
+    //     }
+
+    //     if(visited[currCount]) return;
+    //     visited[currCount] = true; 
+    //     int currA = a + info[currCount, 0];
+    //     int currB = b + info[currCount, 1];
+        
+    //     DFS0112(ref answer, currCount + 1, robCount, info, visited, currA, b, n, m);
+    //     DFS0112(ref answer, currCount + 1, robCount, info, visited, a, currB, n, m);
+
+    //     visited[currCount] = false;
+    // }
+
+    public int solution011202(int[,] info, int n, int m)
     {
-        public int[] start;
-        public int[] end;
+        int answer = int.MaxValue;
+        int robCount = info.GetLength(0);
+        HashSet<(int idx, int a, int b)> check = new HashSet<(int idx, int a, int b)>();
+        DFS0112(ref answer, 0, robCount, info, check, 0, 0, n, m);
 
-        public Robot(int[] start, int[] end)
-        {
-            this.start = (int[])start.Clone();
-            this.end = (int[])end.Clone();
-        }
-
-        public List<(int y, int x)> way = new List<(int y, int x)>();
-        public void FindWay(int[] curr, int[] next)
-        {
-            var pos = (int[])curr.Clone();
-            if(way.Count == 0) way.Add((pos[0], pos[1]));
-            while(pos[0] != next[0])
-            {
-                if(pos[0] < next[0])
-                {
-                    pos[0] += 1;
-                    way.Add((pos[0], pos[1]));
-                }
-                else if(pos[0] > next[0])
-                {
-                    pos[0] -= 1;
-                    way.Add((pos[0], pos[1]));
-                }
-            }
-            while(pos[1] != next[1])
-            {
-                if(pos[1] < next[1])
-                {
-                    pos[1] += 1;
-                    way.Add((pos[0], pos[1]));
-                }
-                else if(pos[1] > next[1])
-                {
-                    pos[1] -= 1;
-                    way.Add((pos[0], pos[1]));
-                }
-            }
-        }
-    }
-
-    public string[] solution010602(int[,] line) {
-        string[] answer = new string[] {};
+        if (answer >= n) return -1;
         return answer;
+    }
+    
+    public void DFS0112(ref int answer, int currCount, int robCount, int[,] info, HashSet<(int idx, int a, int b)> check, int a, int b, int n, int m)
+    {
+        if(a >= n || b >= m) return;
+        if(!check.Add((currCount, a, b))) return;
+
+
+        check.Add((currCount, a, b));
+        if(currCount == robCount)
+        {
+            answer = Math.Min(answer, a);
+            return;
+        }
+
+        int currA = a + info[currCount, 0];
+        int currB = b + info[currCount, 1];
+        
+        DFS0112(ref answer, currCount + 1, robCount, info, check, currA, b, n, m);
+        DFS0112(ref answer, currCount + 1, robCount, info, check, a, currB, n, m);
     }
 }
