@@ -18,9 +18,27 @@ internal static class Program
     {
         Solution solution = new Solution();
         
-        int answer = solution.solution011202(new int[,] {{1, 2}, {2, 3}, {2, 1}}, 4, 4);
-        // foreach(var elem in answer) Console.WriteLine(elem);
-        Console.WriteLine(answer);
+        int[] answer = solution.solution011501(new int[,]
+                        {
+                            { 4, 11 },
+                            { 1, 12 },
+                            { 8, 3 },
+                            { 12, 7 },
+                            { 4, 2 },
+                            { 7, 11 },
+                            { 4, 8 },
+                            { 9, 6 },
+                            { 10, 11 },
+                            { 6, 10 },
+                            { 3, 5 },
+                            { 11, 1 },
+                            { 5, 3 },
+                            { 11, 9 },
+                            { 3, 8 }
+                        });
+        // int[] answer = solution.solution011501(new int[,] {{2, 3}, {4, 3}, {1, 1}, {2, 1}});
+        foreach(var elem in answer) Console.WriteLine(elem);
+        // Console.WriteLine(answer);
     }
 }
 
@@ -186,5 +204,74 @@ public class Solution
         
         DFS0112(ref answer, currCount + 1, robCount, info, check, currA, b, n, m);
         DFS0112(ref answer, currCount + 1, robCount, info, check, a, currB, n, m);
+    }
+
+    public int[] solution011501(int[,] edges) {
+        int[] answer = new int[4];
+        Dictionary<int, List<int>> graph = new Dictionary<int, List<int>>();
+        int maxNode = 0;
+        for(int i = 0; i < edges.GetLength(0); i++)
+        {
+            var startNode = edges[i, 0];
+            var linkedNode = edges[i, 1];
+
+            if(!graph.ContainsKey(startNode)) graph.Add(startNode, new List<int>());
+            graph[startNode].Add(linkedNode);
+
+            maxNode = Math.Max(maxNode, edges[i, 0]);
+            maxNode = Math.Max(maxNode, edges[i, 1]);
+        }
+
+        bool[] hasIncoming = new bool[maxNode + 1];
+        hasIncoming[0] = true;
+        for (int i = 0; i < edges.GetLength(0); i++)
+        {
+            int linkedNode = edges[i, 1];
+            hasIncoming[linkedNode] = true;
+        }
+        
+        int peakNode = 0;
+        foreach (var kv in graph)
+        {
+            int node = kv.Key;
+            if (!hasIncoming[node] && kv.Value.Count >= 2)
+            {
+                peakNode = node;
+                answer[0] = peakNode;
+                break;
+            }
+        }
+
+        var lines = graph[peakNode];
+        for(int i = 0; i < lines.Count; i++)
+        {
+            int start = lines[i];
+            HashSet<int> checker = new HashSet<int>();
+            checker.Add(start);
+            int type = DFS0115(start, checker, graph);
+            answer[type] += 1;
+        }
+        return answer;
+    }
+
+    public int DFS0115(int start, HashSet<int> checker, Dictionary<int, List<int>> graph)
+    {
+        Queue<int> trace = new Queue<int>();
+        trace.Enqueue(start);
+        bool hasOutTwo = false;
+        while(trace.Count > 0)
+        {
+            var currNode = trace.Dequeue();
+            if (!graph.TryGetValue(currNode, out var linked) || linked.Count == 0) return 2;
+            if (linked.Count == 2) hasOutTwo = true;
+            foreach (var nextNode in linked)
+            {
+                if(hasOutTwo) return 3;
+                if (nextNode == start) return hasOutTwo ? 3 : 1;
+                if (!checker.Add(nextNode)) return hasOutTwo ? 3 : 1;
+                trace.Enqueue(nextNode);
+            }
+        }
+        return -1;
     }
 }
