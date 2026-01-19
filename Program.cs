@@ -18,25 +18,8 @@ internal static class Program
     {
         Solution solution = new Solution();
         
-        int[] answer = solution.solution011501(new int[,]
-                        {
-                            { 4, 11 },
-                            { 1, 12 },
-                            { 8, 3 },
-                            { 12, 7 },
-                            { 4, 2 },
-                            { 7, 11 },
-                            { 4, 8 },
-                            { 9, 6 },
-                            { 10, 11 },
-                            { 6, 10 },
-                            { 3, 5 },
-                            { 11, 1 },
-                            { 5, 3 },
-                            { 11, 9 },
-                            { 3, 8 }
-                        });
-        // int[] answer = solution.solution011501(new int[,] {{2, 3}, {4, 3}, {1, 1}, {2, 1}});
+        int[] answer = solution.solution011902(10,	10,	3,	7, new int[,] {{7, 7}, {2, 7}, {7, 3}});
+
         foreach(var elem in answer) Console.WriteLine(elem);
         // Console.WriteLine(answer);
     }
@@ -273,5 +256,26 @@ public class Solution
             }
         }
         return -1;
+    }
+
+    public int solution011901(int n, long l, long r) {
+        int answer = 0;
+        for(long i = l - 1; i < r; i++)
+        {
+            if(Checker0119(i)) answer += 1;
+        }
+        return answer;
+    }
+
+    public bool Checker0119(long i)
+    {
+        if(i % 5 == 2) return false;
+        else if(i < 5) return true;
+        return Checker0119(i / 5);
+    }
+
+    public int[] solution011902(int m, int n, int startX, int startY, int[,] balls) {
+        int[] answer = new int[] {};
+        return answer;
     }
 }
