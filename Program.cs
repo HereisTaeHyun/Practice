@@ -18,7 +18,7 @@ internal static class Program
     {
         Solution solution = new Solution();
         
-        int[] answer = solution.solution011902(10,	10,	3,	7, new int[,] {{7, 7}, {2, 7}, {7, 3}});
+        int[] answer = solution.solution012102(["SL","LR"]);
 
         foreach(var elem in answer) Console.WriteLine(elem);
         // Console.WriteLine(answer);
@@ -274,8 +274,62 @@ public class Solution
         return Checker0119(i / 5);
     }
 
-    public int[] solution011902(int m, int n, int startX, int startY, int[,] balls) {
-        int[] answer = new int[] {};
+    public int[] solution011101(int m, int n, int startX, int startY, int[,] balls) {
+        int[] answer = new int[balls.GetLength(0)];
+        for(int i = 0; i < balls.GetLength(0); i++)
+        {
+            int targetX = balls[i, 0];
+            int targetY = balls[i, 1];
+            int value = int.MaxValue;
+            if(startX != targetX || targetY <= startY)
+            {
+                int dx = startX - targetX;
+                int dy = startY - (2 * n - targetY);
+                value = Math.Min(value, dx * dx + dy * dy);
+            }
+            if(startX != targetX || targetY >= startY)
+            {
+                int dx = startX - targetX;
+                int dy = startY + targetY;
+                value = Math.Min(value, dx * dx + dy * dy);
+            }
+            if(startY != targetY || targetX >= startX)
+            {
+                int dx = startX + targetX;
+                int dy = startY - targetY;
+                value = Math.Min(value, dx * dx + dy * dy);
+            }
+            if(startY != targetY || targetX <= startX)
+            {
+                int dx = startX - (2 * m - targetX);
+                int dy = startY - targetY;
+                value = Math.Min(value, dx * dx + dy * dy);
+            }
+            answer[i] = value;
+        }
         return answer;
+    }
+    
+    enum Direction { LEFT, UP, RIGHT, BOTTOM }
+    public int[] solution012102(string[] grid) {
+        List<int> answer = new List<int>();
+        List<char[]> field = new List<char[]>();
+        for(int i = 0; i < grid.GetLength(0); i++)
+        {
+            var currGrid = grid[i].ToCharArray();
+            field.Add(currGrid);
+        }
+
+        for(int i = 0; i < field.Count; i++)
+        {
+            for(int j = 0; j < field[0].Length; j++)
+            {
+                for (int k = 0; k < 4; k++)
+                {
+                    
+                }
+            }
+        }
+        return answer.ToArray();
     }
 }
