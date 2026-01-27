@@ -314,6 +314,7 @@ public class Solution
     public int[] solution012102(string[] grid) {
         List<int> answer = new List<int>();
         List<char[]> field = new List<char[]>();
+
         for(int i = 0; i < grid.GetLength(0); i++)
         {
             var currGrid = grid[i].ToCharArray();

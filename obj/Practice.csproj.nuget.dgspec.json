@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\kth88\\OneDrive\\Desktop\\Coding\\Practice\\Practice.csproj": {}
+    "C:\\Users\\kth88\\OneDrive\\Desktop\\Coding\\Practice\\Practice.csproj": {}
   },
   "projects": {
-    "c:\\Users\\kth88\\OneDrive\\Desktop\\Coding\\Practice\\Practice.csproj": {
+    "C:\\Users\\kth88\\OneDrive\\Desktop\\Coding\\Practice\\Practice.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\kth88\\OneDrive\\Desktop\\Coding\\Practice\\Practice.csproj",
+        "projectUniqueName": "C:\\Users\\kth88\\OneDrive\\Desktop\\Coding\\Practice\\Practice.csproj",
         "projectName": "Practice",
-        "projectPath": "c:\\Users\\kth88\\OneDrive\\Desktop\\Coding\\Practice\\Practice.csproj",
+        "projectPath": "C:\\Users\\kth88\\OneDrive\\Desktop\\Coding\\Practice\\Practice.csproj",
         "packagesPath": "C:\\Users\\kth88\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\kth88\\OneDrive\\Desktop\\Coding\\Practice\\obj\\",
+        "outputPath": "C:\\Users\\kth88\\OneDrive\\Desktop\\Coding\\Practice\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\kth88\\AppData\\Roaming\\NuGet\\NuGet.Config"
